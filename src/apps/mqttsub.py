@@ -2,8 +2,13 @@ import paho.mqtt.client as paho
 import json
 
 MQTT_BROKER = 'bpi1'
-MQTT_TOPIC = '/sensors/rpi2/cputemp/temperature'
-
+topics = {
+    '/sensors/rpi2/cputemp/temperature': { 'lbl': 'rpi2 CPU Temperature', 'val': 0 },
+    '/sensors/rpi2/BMP180/pressure': { 'lbl': 'Air Pressure', 'val': 0 },
+    '/sensors/rpi2/HTU21D/temperature': { 'lbl': 'Temperature', 'val': 0 },
+    '/sensors/rpi2/HTU21D/relative humidity': { 'lbl': 'Humidity', 'val': 0 },
+    '/sensors/rpi2/TSL2561/luminosity': { 'lbl': 'Luminosity', 'val': 0 },
+    }
 
 class MQTTSubscriberApp():
 
@@ -14,7 +19,8 @@ class MQTTSubscriberApp():
 
         mqttclt.connect(MQTT_BROKER, port=1883, keepalive=60)
 
-        mqttclt.subscribe(MQTT_TOPIC, 0)
+        for t in topics.keys():
+            mqttclt.subscribe(t, 0)
 
         mqttclt.loop_start()
 
@@ -25,16 +31,19 @@ class MQTTSubscriberApp():
     def on_message(self, mosq, obj, msg):
         try:
             data = json.loads(msg.payload.decode('utf-8'))
-            self.temp = data['value']
+            topics[msg.topic]['val'] = data['value']
         except Exception as e:
-            print(e)
+            #print(e)
+            pass
         
 
     def update(self):
-        pstr = '{lbl:>30}: {val:4.1f}°C'.format(
-            lbl='rpi2 CPU Temperature',
-            val=self.temp)
+        y = 0
+        for t in topics.values():
+            pstr = '{lbl:>30}: {val:4.1f}'.format(
+                lbl=t['lbl'],
+                val=t['val'])
 
-        self.wnd.addstr(0, 0, pstr)
+            self.wnd.addstr(y, 0, pstr)
 
-        
+            y += 1
