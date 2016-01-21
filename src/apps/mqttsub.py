@@ -8,12 +8,27 @@ from apps.baseapp import BaseApp
 MQTT_BROKER = '192.168.0.21'
 
 topics = {
-    '/sensors/rpi2/cputemp/temperature': { 'lbl': 'rpi2 CPU Temperature'},
-    '/sensors/rpi2/BMP180/pressure': { 'lbl': 'Air Pressure' },
-    '/sensors/rpi2/HTU21D/temperature': { 'lbl': 'Temperature' },
-    '/sensors/rpi2/HTU21D/relative humidity': { 'lbl': 'Humidity' },
-    '/sensors/rpi2/TSL2561/luminosity': { 'lbl': 'Luminosity' },
-    }
+    '/sensors/rpi2/cputemp/temperature': {
+        'lbl': 'rpi2 CPU Temperature',
+        'unit': '°C'
+    },
+    '/sensors/rpi2/BMP180/pressure': {
+        'lbl': 'Air Pressure',
+        'unit': 'hPa'
+    },
+    '/sensors/rpi2/HTU21D/temperature': {
+        'lbl': 'Temperature',
+        'unit': '°C'
+    },
+    '/sensors/rpi2/HTU21D/relative humidity': {
+        'lbl': 'Humidity',
+        'unit': '% RH'
+    },
+    '/sensors/rpi2/TSL2561/luminosity': {
+        'lbl': 'Luminosity',
+        'unit': 'Lx'
+    },
+}
 
 CONN_ERR_LIMIT = 5
 
@@ -25,7 +40,7 @@ class MQTTSubscriberApp(BaseApp):
 
         for t in topics.values():
             t['updated'] = False
-            t['val'] = 0
+            t['value'] = 0
         
         
     def mqtt_connect(self):
@@ -51,7 +66,7 @@ class MQTTSubscriberApp(BaseApp):
         
         try:
             data = json.loads(msg.payload.decode('utf-8'))
-            topics[msg.topic]['val'] = data['value']
+            topics[msg.topic]['value'] = data['value']
             topics[msg.topic]['updated'] = True
         except Exception as e:
             msg = "Failed to parse MQTT message in topic '{0}'."
@@ -81,11 +96,11 @@ class MQTTSubscriberApp(BaseApp):
             else:
                 upd = ' '
             
-            pstr = '{lbl:>30}: {val:4.1f} {upd}'.format(
+            pstr = '{lbl:>30}: {upd} {val:6.1f} {unit}'.format(
                 lbl=t['lbl'],
-                val=t['val'],
+                val=t['value'],
+                unit=t['unit'],
                 upd=upd)
 
             self.wnd.addstr(y, 0, pstr)
 
-            y += 1

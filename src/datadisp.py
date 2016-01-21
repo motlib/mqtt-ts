@@ -8,10 +8,14 @@ from scrman import ScreenManager
 
 
 def setup_logging():
-    logging.basicConfig(
-        filename='/var/log/datadisp.log',
-        filemode='a',
-        level=logging.WARNING)
+    try:
+        logging.basicConfig(
+            filename='/var/log/datadisp.log',
+            filemode='a',
+            level=logging.WARNING)
+    except:
+        pass    
+        
 
 
 def main(stdscr):
