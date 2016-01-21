@@ -8,10 +8,8 @@ from scrman import ScreenManager
 
 
 def setup_logging():
-    logfile = open('datadisp.log', 'a')
-    
     logging.basicConfig(
-        filename='datadisp.log',
+        filename='/var/log/datadisp.log',
         filemode='a',
         level=logging.WARNING)
 

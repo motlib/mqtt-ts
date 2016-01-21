@@ -1,10 +1,11 @@
 import paho.mqtt.client as paho
 import json
+import logging
 
 from apps.baseapp import BaseApp
 
 
-MQTT_BROKER = 'bpi1'
+MQTT_BROKER = '192.168.0.21'
 
 topics = {
     '/sensors/rpi2/cputemp/temperature': { 'lbl': 'rpi2 CPU Temperature'},
