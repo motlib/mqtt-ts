@@ -1,6 +1,6 @@
+from apps.baseapp import BaseApp
 
-
-class RPiTemperature():
+class RPiTemperature(BaseApp):
     def __init__(self):
         self.temp = None
 

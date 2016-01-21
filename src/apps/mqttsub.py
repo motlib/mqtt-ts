@@ -1,6 +1,9 @@
 import paho.mqtt.client as paho
 import json
 
+from apps.baseapp import BaseApp
+
+
 MQTT_BROKER = 'bpi1'
 topics = {
     '/sensors/rpi2/cputemp/temperature': { 'lbl': 'rpi2 CPU Temperature', 'val': 0 },
@@ -10,7 +13,7 @@ topics = {
     '/sensors/rpi2/TSL2561/luminosity': { 'lbl': 'Luminosity', 'val': 0 },
     }
 
-class MQTTSubscriberApp():
+class MQTTSubscriberApp(BaseApp):
 
     def __init__(self):
         mqttclt = paho.Client()
