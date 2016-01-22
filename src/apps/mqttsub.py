@@ -34,7 +34,6 @@ CONN_ERR_LIMIT = 5
 
 
 class MQTTSubscriberApp(BaseApp):
-
     def __init__(self):
         self.mqtt_connect()
 
@@ -42,7 +41,7 @@ class MQTTSubscriberApp(BaseApp):
             t['updated'] = False
             t['value'] = 0
         
-        
+         
     def mqtt_connect(self):
         try:
             self.conn_err = 0

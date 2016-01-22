@@ -1,21 +1,15 @@
-from apps.baseapp import BaseApp
+from apps.valuedisp import ValueDisplayApp
 
-class RPiTemperature(BaseApp):
+class RPiTemperature(ValueDisplayApp):
     def __init__(self):
-        self.temp = None
+        ValueDisplayApp.__init__(self)
+        self.set_unit('°C')
 
-    def get_temp(self):
+        
+    def on_update(self):
         with open('/sys/class/thermal/thermal_zone0/temp', 'r') as f:
             tstr = f.read()
 
-        self.temp = int(tstr) / 1000
+        self.set_value(int(tstr) / 1000)
 
         
-    def update(self):
-        self.get_temp()
-
-        tstr = '{lbl:>30}: {val:3.1f}°C'.format(
-            lbl='Core Temperature',
-            val=self.temp)
-        
-        self.wnd.addstr(0, 0, tstr)
