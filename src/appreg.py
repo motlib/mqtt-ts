@@ -18,4 +18,4 @@ def init_apps(scrman):
         x=0,
         app=app)
     
-    scrman.add_app(height=6, width=52, y=4, x=0, app=MQTTSubscriberApp())
+    scrman.add_app(height=10, width=52, y=4, x=0, app=MQTTSubscriberApp())

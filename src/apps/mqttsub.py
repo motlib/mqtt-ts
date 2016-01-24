@@ -28,6 +28,14 @@ topics = {
         'lbl': 'Luminosity',
         'unit': 'Lx'
     },
+    '/sensors/rpi2/room/temperature': {
+        'lbl': 'Room',
+        'unit': '°C'
+    },
+    '/sensors/rpi2/outside/temperature': {
+        'lbl': 'Outside',
+        'unit': '°C'
+    },
 }
 
 CONN_ERR_LIMIT = 5
