@@ -43,7 +43,8 @@ CONN_ERR_LIMIT = 5
 
 class MQTTSubscriberApp(BaseApp):
     def __init__(self):
-        self.mqtt_connect()
+        # self.mqtt_connect()
+        self.connected = False
 
         for t in topics.values():
             t['updated'] = False
@@ -57,6 +58,7 @@ class MQTTSubscriberApp(BaseApp):
             self.mqttclt = paho.Client()
             self.mqttclt.on_message = self.on_message
             self.mqttclt.on_disconnect = self.on_disconnect
+            self.mqttclt.on_connect = self.on_connect
             
             self.mqttclt.connect(MQTT_BROKER, port=1883, keepalive=60)
             
@@ -69,8 +71,6 @@ class MQTTSubscriberApp(BaseApp):
 
         
     def on_message(self, mosq, obj, msg):
-        self.conn_err = 0
-        
         try:
             data = json.loads(msg.payload.decode('utf-8'))
             topics[msg.topic]['value'] = data['value']
@@ -79,22 +79,32 @@ class MQTTSubscriberApp(BaseApp):
             msg = "Failed to parse MQTT message in topic '{0}'."
             logging.warn(msg.format(msg.topic))
 
+            
+    def on_connect(self, client, userdata, flags, rc):
+        self.connected = True
+
         
     def on_disconnect(client, userdata, rc):
-        if rc != MQTT_ERR_SUCCESS:
-            logging.warning('MQTT client unexpected disconnect. Trying to reconnect.')
-            
-            self.conn_err += 1
-            if self.conn_err < CONN_ERR_LIMIT:
-                self.mqtt_connect()
-            else:
-                # giving up, 
-                pass
-        else:
-            # disconnect was requested by API, do nothing
-            pass
-            
+        self.connected = False
+        
+        #if rc != MQTT_ERR_SUCCESS:
+        #    logging.warning('MQTT client unexpected disconnect. Trying to reconnect.')
+        #    
+        #    self.conn_err += 1
+        #    if self.conn_err < CONN_ERR_LIMIT:
+        #        self.mqtt_connect()
+        #    else:
+        #        # giving up, 
+        #        pass
+        #else:
+        #    # disconnect was requested by API, do nothing
+        #    pass
+
+        
     def update(self):
+        if not self.connected:
+            self.mqtt_connect()
+            
         for y, t in enumerate(topics.values()):
 
             if t['updated']:
