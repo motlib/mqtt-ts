@@ -40,7 +40,7 @@ class ValueDisplayApp(BaseApp):
     def update(self):
         self.on_update()
         
-        fmt_str = '{lbl:>30} : '
+        fmt_str = '{lbl:>20} : '
         if self.uind:
             fmt_str += '{uind} '
         fmt_str += self.fmt + ' {unit}'
