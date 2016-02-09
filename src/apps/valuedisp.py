@@ -6,19 +6,19 @@ class ValueDisplayApp(BaseApp):
         self.set_label(label)
         self.set_fmt('{val:8.1f}')
         self.set_unit(unit)
-        self.set_update_indicator(False)
+        self.set_status_flag(' ')
 
-        self.updated = False
 
-    def set_update_indicator(self, uind):
-        '''Set the update indicator.'''
-        self.uind = uind
+    def set_status_flag(self, stat):
+        '''Set the status flag.'''
+        
+        self.stat = stat
         
 
     def set_value(self, value):
          '''Set the value to display.'''
+         
          self.value = value
-         self.updated = True
 
         
     def set_label(self, lbl):
@@ -40,20 +40,12 @@ class ValueDisplayApp(BaseApp):
     def update(self):
         self.on_update()
         
-        fmt_str = '{lbl:>20} : '
-        if self.uind:
-            fmt_str += '{uind} '
+        fmt_str = '{lbl:>15} {stat} : '
         fmt_str += self.fmt + ' {unit}'
-
-        if self.updated:
-            self.updated = False
-            uind = '*'
-        else:
-            uint = ' '
         
         tstr = fmt_str.format(
             lbl=self.label,
-            uint=uind,
+            stat=self.stat,
             val=self.value,
             unit=self.unit)
         

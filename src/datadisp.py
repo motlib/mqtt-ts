@@ -5,7 +5,10 @@ import sys
 
 from appreg import init_apps
 from scrman import ScreenManager
-from apps.mqttsub import MQTTSubscriber
+from mqttman import MQTTManager
+
+
+MQTT_BROKER = '192.168.0.21'
 
 
 def setup_logging():
@@ -21,8 +24,7 @@ def main(stdscr):
         setup_logging()
         
         scrman = ScreenManager(stdscr)
-        mqtt = MQTTSubscriber()
-
+        mqtt = MQTTManager(MQTT_BROKER)
         
         init_apps(scrman, mqtt)
 
