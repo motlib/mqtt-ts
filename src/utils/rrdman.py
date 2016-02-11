@@ -90,9 +90,10 @@ class RRDManager():
 
         for signal in signals:
             rrdfile = self.get_rrdfile(signal)
-        
             cmd.append(
                 'DEF:' + signal + '=' + rrdfile + ':value:AVERAGE')
+
+        for signal in signals:            
             cmd.append(
                 'LINE2:' + signal)
 
