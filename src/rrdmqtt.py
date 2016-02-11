@@ -108,7 +108,10 @@ class RrdMqtt():
                 cnt -= 1
             else:
                 for name,graph in self.graphs.items():
-                    self.rrd.create_graph(name, **graph)
+                    self.rrd.create_graph(
+                        name,
+                        graph=graph,
+                        signalopts=self.signals)
 
                 cnt = self.cfg['rrdmqtt']['graph_interval']
                 

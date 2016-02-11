@@ -12,24 +12,51 @@ rrdmqtt:
     pressure:
       topic: /sensors/rpi2/BMP180/pressure
       timeout: 10
+      color: 0000ff
+
+    temp_in:
+      topic: /sensors/rpi2/room/temperature
+      timeout: 10
+      color: bbbb00
+
     temp_out:
       topic: /sensors/rpi2/outside/temperature
       timeout: 10
+      color: ff0000
+      
     hum_rel:
       topic: /sensors/rpi2/HTU21D/relative humidity
       timeout: 10
+      color: 00ff00
+
+    rpi2_temp:
+      topic: /sensors/rpi2/cputemp/temperature
+      timeout: 10
+      color: 00bbbb
+
+    luminosity:
+      topic: /sensors/rpi2/TSL2561/luminosity
+      timeout: 10
+      color: bb00bb
+      
 
   graphs:
     hum_rel:
       signals: [hum_rel]
       title: Relativ Humidity (inside)
+      rrdopts: []
+      
     pressure:
       signals: [pressure]
       title: Air Pressure (mbar)
-    temp_out:
-      signals: [temp_out]
-      title: Temperature (outside)
-    weather:
-      signals: [pressure, temp_outside]
+      rrdopts: ['--alt-autoscale']
+      
+    temperatures:
+      signals: [temp_in, temp_out]
       title: Outside Weather Data
-    
+      rrdopts: []
+
+    luminosity:
+      signals: [luminosity]
+      title: Luminosity (lux)
+      rrdopts: ['--logarithmic']
