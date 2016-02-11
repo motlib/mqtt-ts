@@ -3,103 +3,93 @@ import json
 import logging
 import os
 import subprocess
-from time import sleep, mktime
-import datetime
+from time import sleep
+import yaml
 
-from mqttman import MQTTManager
-
-MQTT_BROKER='bpi1'
-#MQTT_BROKER = '192.168.0.21'
+from utils.mqttman import MQTTManager
+from utils.rrdman import RRDManager
 
 class RrdMqtt():
     def __init__(self):
         self.setup_args()
         self.setup_logging()
+        self.load_config()
 
-        self.mqtt = MQTTManager(MQTT_BROKER)
+        self.mqtt = MQTTManager(self.cfg['mqtt']['broker'])
+        self.rrd = RRDManager(
+            datadir=self.cfg['rrdmqtt']['datadir'],
+            graphdir=self.cfg['rrdmqtt']['graphdir'])
 
-        self.topics = {
-            '/sensors/rpi2/BMP180/pressure': 'pressure',
-            '/sensors/rpi2/outside/temperature': 'temp_out',
-            '/sensors/rpi2/HTU21D/relative humidity': 'hum_rel',
-            '/sensors/rpi2/BMP180/pressure': 'pressure',
-        }
+        for name, signal in self.signals.items():
+            # Check if the rrd file exists and create if necessary
+            self.rrd.check_rrd(name)
 
-        for topic in self.topics.keys():
-            self.mqtt.add_topic(topic)
+            # subscribe topics
+            self.mqtt.add_topic(signal['topic'])
+            self.mqtt.set_timeout(signal['topic'], signal['timeout'])
+
 
         
     def setup_args(self):
         parser = ArgumentParser()
 
         parser.add_argument(
-            '-d', '--datadir',
-            help='Path to the rrd data files.')
-        
+            '-c', '--cfg',
+            help='Path to the configuration file.',
+            default='rrdmqtt.yaml')
+
         parser.add_argument(
-            '-g', '--graphdir',
-            help='Path to the generated graphics files.')
+            '-v', '--verbose',
+            help='Enable verbose logging output.',
+            action='store_true');
 
         self.args = parser.parse_args()
     
 
     def setup_logging(self):
         '''Set up the logging framework.'''
+
+        if self.args.verbose:
+            level = logging.DEBUG
+        else:
+            level = logging.WARNING
         
         logging.basicConfig(
-            #filename=self.args.logfile,
-            #filemode='a',
-            level=logging.WARNING,
+            level=level,
             format='%(asctime)s %(levelname)s: %(message)s')
 
         
-    def create_rrd(self, topic):
-        filepath = self.get_rrdfile(topic)
-        
-        cmd = [
-            'rrdtool',
-            'create',
-            filepath,
-            # one minute steps
-            '--step', '60',  
-            'DS:value:GAUGE:120:U:U',
-            # average over 5 values (5 minutes), store 288 = 24h
-            'RRA:AVERAGE:0.5:5:288',
-            # average over 20 values (20 minutes), store 2160 = 30d
-            'RRA:AVERAGE:0.5:20:2160'
-        ]
+    def load_config(self):
+        cfgfile = self.args.cfg
 
-        subprocess.check_call(cmd)
-        
-        
-    def update_topic(self, topic):
-        filepath = self.get_rrdfile(topic)
+        try:
+            with open(cfgfile, 'r') as f:
+                self.cfg = yaml.load(f)
 
-        if not os.path.isfile(filepath):
-            self.create_rrd(topic)
+            # for convenient access...
+            self.signals = self.cfg['rrdmqtt']['signals']
+            self.graphs = self.cfg['rrdmqtt']['graphs']
+        except:
+            msg = "Failed to load config file '{0}'."
+            logging.exception(msg.format(cfgfile))
+
+        
+    def update_signal(self, signal):
+        sigcfg = self.signals[signal]
         
         try:
-            status = self.mqtt.get_status(topic)
-            payload = self.mqtt.get_payload(topic)
+            status = self.mqtt.get_status(sigcfg['topic'])
+            payload = self.mqtt.get_payload(sigcfg['topic'])
 
-            logging.debug(
-                'Status: ' + str(status)
-                + '; Payload: ' + str(payload))
+            # logging.debug(
+            #     'Status: ' + str(status)
+            #     + '; Payload: ' + str(payload))
             
             if payload != None:
                 data = json.loads(payload)
 
-                value = 'N:' + str(data['value'])
+                self.rrd.update_rrd(signal, data['value'])
             
-                cmd = [
-                    'rrdtool',
-                    'update',
-                    filepath,
-                    value
-                ]
-                subprocess.check_call(cmd)
-            
-                logging.info("Updated rrd '{0}'.".format(filepath))
             else:
                 logging.warning('No data received.')
             
@@ -108,63 +98,25 @@ class RrdMqtt():
             logging.exception(msg.format(filepath))
 
 
-    def get_rrdfile(self, topic):
-        filename = self.topics[topic] + '.rrd'
-        filepath = os.path.join(self.args.datadir, filename)
-
-        return filepath
-
-
-    def get_graphfile(self, topic, duration):
-        filename = self.topics[topic] + '.png'
-        filepath = os.path.join(self.args.graphdir, filename)
-
-        return filepath
-    
-    
-    def create_graph(self, topic):
-        now = datetime.datetime.utcnow()
-        delta = datetime.timedelta(hours=6)
-        start = int(mktime((now - delta).timetuple()))
-
-        graphname = self.get_graphfile(topic, '6h')
-        rrdname = self.get_rrdfile(topic)
-        
-        cmd = [
-            'rrdtool',
-            'graph',
-            graphname,
-            '--start', str(start),
-            '-w', '1024',
-            '-h', '768',
-            'DEF:value=' + rrdname + ':value:AVERAGE',
-            'LINE2:value#FF0000'
-        ]
-
-        subprocess.check_call(cmd)
-
-        msg = "Created graph '{0}'."
-        logging.info(msg.format(graphname))
-    
-                                
     def run(self):
 
-        cnt = 0
+        cnt = self.cfg['rrdmqtt']['graph_interval']
         while True:
             self.mqtt.tick()
             
-            for topic in self.topics.keys():
-                self.update_topic(topic)
+            for signal in self.signals.keys():
+                self.update_signal(signal)
 
-            cnt += 1
-            if cnt == 60:
-                cnt = 0
-                for topic in self.topics.keys():
-                    self.create_graph(topic)
+            if cnt > 0:
+                cnt -= 1
+            else:
+                for name,graph in self.graphs.items():
+                    self.rrd.create_graph(name, **graph)
+
+                cnt = self.cfg['rrdmqtt']['graph_interval']
                 
             sleep(1)
         
-            
             
 if __name__ == '__main__':
     rrdmqtt = RrdMqtt()

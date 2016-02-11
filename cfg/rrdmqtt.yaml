@@ -1,0 +1,26 @@
+# Configuration file for the rrdmqtt script.
+
+mqtt:
+  broker: bpi1
+
+rrdmqtt:
+  graphdir: ./graph
+  datadir: ./data
+  graph_interval: 10
+
+  signals:
+    pressure:
+      topic: /sensors/rpi2/BMP180/pressure
+      timeout: 10
+    temp_outside:
+      topic: /sensors/rpi2/outside/temperature
+      timeout: 10
+    hum_rel:
+      topic: /sensors/rpi2/HTU21D/relative humidity
+      timeout: 10
+
+  graphs:
+    weather:
+      signals: [pressure, temp_outside]
+      title: Outside Weather Data
+    
