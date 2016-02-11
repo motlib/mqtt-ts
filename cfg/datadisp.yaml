@@ -91,7 +91,7 @@ datadisp:
       width: 40
       height: 1
       label: Luminosity
-      unit: mbar
+      unit: Lx
       topic: /sensors/rpi2/TSL2561/luminosity
       timeout: 10
       
