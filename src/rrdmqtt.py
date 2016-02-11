@@ -16,6 +16,7 @@ class RrdMqtt():
         self.load_config()
 
         self.mqtt = MQTTManager(self.cfg['mqtt']['broker'])
+
         self.rrd = RRDManager(
             datadir=self.cfg['rrdmqtt']['datadir'],
             graphdir=self.cfg['rrdmqtt']['graphdir'])
@@ -81,10 +82,6 @@ class RrdMqtt():
             status = self.mqtt.get_status(sigcfg['topic'])
             payload = self.mqtt.get_payload(sigcfg['topic'])
 
-            # logging.debug(
-            #     'Status: ' + str(status)
-            #     + '; Payload: ' + str(payload))
-            
             if payload != None:
                 data = json.loads(payload)
 

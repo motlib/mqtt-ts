@@ -74,6 +74,7 @@ class RRDManager():
     def create_graph(self, name, signals, title=''):
         now = datetime.datetime.now()
         delta = datetime.timedelta(hours=6)
+        # no use of timestamp() function, because not available in python 3.2
         start = int(mktime((now - delta).timetuple()))
 
         graphfile = self.get_graphfile(name, '6h')
@@ -90,12 +91,13 @@ class RRDManager():
 
         for signal in signals:
             rrdfile = self.get_rrdfile(signal)
-            cmd.append(
-                'DEF:' + signal + '=' + rrdfile + ':value:AVERAGE')
+            cmd.append('DEF:{signal}={rrdfile}:value:AVERAGE'.format(
+                signal=signal,
+                rrdfile=rrdfile))
 
         for signal in signals:            
-            cmd.append(
-                'LINE2:' + signal)
+            cmd.append('LINE2:{signal}#ff0000'.format(
+                signal=signal))
 
         subprocess.check_call(cmd)
 
