@@ -13,10 +13,20 @@ STAT_VALID = ' '
 
 
 class MQTTManager():
+    inst = None
+    
+    def get_instance():
+        if MQTTManager.inst == None:
+            raise ValueError('Instance has not yet been created!')
+        
+        return MQTTManager.inst
+    
     def __init__(self, broker):
         self.connected = False
         self.topics = {}
         self.broker = broker
+
+        MQTTManager.inst = self
 
         
     def add_topic(self, topic, timeout=0):

@@ -3,6 +3,9 @@ from datetime import datetime
 from apps.baseapp import BaseApp
 
 class DateTimeApp(BaseApp):
+    def __init__(self):
+        BaseApp.__init__(self)
+        
     def update(self):
         now = datetime.now()
         txt = now.strftime('%A, %d of %B %Y %H:%M')

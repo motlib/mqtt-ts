@@ -5,23 +5,32 @@ class ScreenManager():
     def __init__(self, stdscr):
         self.stdscr = stdscr
 
-        self.apps = []
+        self.widgets = []
 
         curses.curs_set(False)
 
         
-    def add_app(self, height, width, y, x, app):
-        wnd = curses.newwin(height, width, y, x)
+    def add_widget(self, wdgt):
+        wnd = curses.newwin(
+            wdgt.height,
+            wdgt.width,
+            wdgt.y,
+            wdgt.x)
 
-        app.wnd = wnd
+        wdgt.wnd = wnd
         
-        self.apps.append(app)
+        self.widgets.append(wdgt)
+
+        
+    def add_widgets(self, widgets):
+        for wdgt in widgets:
+            self.add_widget(wdgt)
 
         
     def update(self):
         self.stdscr.clear()
         self.stdscr.refresh()
         
-        for app in self.apps:
-            app.update()
-            app.wnd.refresh()
+        for wdgt in self.widgets:
+            wdgt.update()
+            wdgt.wnd.refresh()

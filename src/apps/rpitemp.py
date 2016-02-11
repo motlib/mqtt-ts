@@ -1,8 +1,12 @@
 from apps.valuedisp import ValueDisplayApp
 
 class RPiTemperature(ValueDisplayApp):
-    def __init__(self, label='CPU Temperature'):
-        ValueDisplayApp.__init__(self, label)
+    '''Display the local CPU temperature of the RPi.'''
+    
+    def __init__(self):
+        ValueDisplayApp.__init__(self)
+        
+        self.set_label('CPU Temp.')
         self.set_unit('°C')
 
         

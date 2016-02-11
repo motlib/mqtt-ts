@@ -1,11 +1,13 @@
 from apps.baseapp import BaseApp
 
 class ValueDisplayApp(BaseApp):
-    def __init__(self, label='Label', unit='Unit'):
+    def __init__(self):
+        BaseApp.__init__(self)
+        
         self.set_value(-1)
-        self.set_label(label)
+        self.set_label('Label')
         self.set_fmt('{val:8.1f}')
-        self.set_unit(unit)
+        self.set_unit('Unit')
         self.set_status_flag(' ')
 
 

@@ -1,0 +1,101 @@
+
+
+
+mqtt:
+  broker: bpi1
+
+datadisp:
+  widgets:
+    
+    datetime:
+      class: DateTimeApp
+      x: 0
+      y: 0
+      width: 45
+      height: 1
+
+    cycle:
+      class: CycleIndicatorApp
+      x: 38
+      y: 0
+      width: 2
+      height: 1
+
+    rpi3temp:
+      class: RPiTemperature
+      x: 0
+      y: 3
+      width: 40
+      height: 1
+      label: CPU rpi3
+
+    rpi2temp:
+      class: MQTTSubscriberApp
+      x: 0
+      y: 4
+      width: 40
+      height: 1
+      label: CPU rpi2
+      unit: °C
+      topic: /sensors/rpi2/cputemp/temperature
+      timeout: 10
+
+    roomtemp:
+      class: MQTTSubscriberApp
+      x: 0
+      y: 6
+      width: 40
+      height: 1
+      label: Temp. Inside
+      unit: °C
+      topic: /sensors/rpi2/room/temperature
+      timeout: 10
+      
+    outtemp:
+      class: MQTTSubscriberApp
+      x: 0
+      y: 7
+      width: 40
+      height: 1
+      label: Temp. Outside
+      unit: °C
+      topic: /sensors/rpi2/outside/temperature
+      timeout: 10
+      
+    relhum:
+      class: MQTTSubscriberApp
+      x: 0
+      y: 9
+      width: 40
+      height: 1
+      label: Hum. Inside
+      unit: '%RH'
+      topic: '/sensors/rpi2/HTU21D/relative humidity'
+      timeout: 10
+      
+    pressure:
+      class: MQTTSubscriberApp
+      x: 0
+      y: 10
+      width: 40
+      height: 1
+      label: Air Pressure
+      unit: mbar
+      topic: /sensors/rpi2/BMP180/pressure
+      timeout: 10
+      
+    luminosity:
+      class: MQTTSubscriberApp
+      x: 0
+      y: 11
+      width: 40
+      height: 1
+      label: Luminosity
+      unit: mbar
+      topic: /sensors/rpi2/TSL2561/luminosity
+      timeout: 10
+      
+    
+      
+    
+    

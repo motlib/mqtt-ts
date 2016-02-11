@@ -1,24 +1,31 @@
-import paho.mqtt.client as paho
 import json
-import logging
 
-from apps.baseapp import BaseApp
 from apps.valuedisp import ValueDisplayApp
-
+from utils.mqttman import MQTTManager
             
 class MQTTSubscriberApp(ValueDisplayApp):
-    def __init__(self,
-            mqtt,
-            topic,
-            label='Label',
-            unit='Unit'):
+    def __init__(self):
+        ValueDisplayApp.__init__(self)
         
-        ValueDisplayApp.__init__(self, label, unit)
-        
-        self.mqtt = mqtt
-        self.topic = topic
+        self.mqtt = MQTTManager.get_instance()
+
+        self.topic = None
+        self.timeout = 0
         
 
+    def set_timeout(self, timeout):
+        self.timeout = timeout
+        
+        if self.topic != None:
+            self.mqtt.set_timeout(self.topic, timeout)
+
+            
+    def set_topic(self, topic):
+        self.topic = topic
+        
+        self.mqtt.add_topic(topic, self.timeout)
+        
+        
     def on_update(self):
         # status needs to be retrieved first because get_payload
         # resets status.

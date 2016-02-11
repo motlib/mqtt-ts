@@ -3,6 +3,8 @@ from apps.baseapp import BaseApp
 
 class CycleIndicatorApp(BaseApp):
     def __init__(self):
+        BaseApp.__init__(self)
+        
         self.cycle = 0
         self.cycles = '/-\|'
         
