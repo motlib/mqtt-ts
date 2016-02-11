@@ -28,16 +28,26 @@ class DataDisp():
             help='Path to the YAML config file.',
             default='datadisp.yaml')
 
+        parser.add_argument(
+            '-v', '--verbose',
+            help='Enable verbose logging output.',
+            action='store_true');
+
         self.args = parser.parse_args()
     
 
     def setup_logging(self):
         '''Set up the logging framework.'''
         
+        if self.args.verbose:
+            level = logging.DEBUG
+        else:
+            level = logging.WARNING
+
         logging.basicConfig(
             filename=self.args.logfile,
             filemode='a',
-            level=logging.DEBUG,
+            level=level,
             format='%(asctime)s %(levelname)s: %(message)s')
 
         logging.info('Starting up')
