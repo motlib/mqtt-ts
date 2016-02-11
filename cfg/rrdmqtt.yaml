@@ -12,7 +12,7 @@ rrdmqtt:
     pressure:
       topic: /sensors/rpi2/BMP180/pressure
       timeout: 10
-    temp_outside:
+    temp_out:
       topic: /sensors/rpi2/outside/temperature
       timeout: 10
     hum_rel:
@@ -20,6 +20,15 @@ rrdmqtt:
       timeout: 10
 
   graphs:
+    hum_rel:
+      signals: [hum_rel]
+      title: Relativ Humidity (inside)
+    pressure:
+      signals: [pressure]
+      title: Air Pressure (mbar)
+    temp_out:
+      signals: [temp_out]
+      title: Temperature (outside)
     weather:
       signals: [pressure, temp_outside]
       title: Outside Weather Data
