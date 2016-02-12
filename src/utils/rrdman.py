@@ -73,7 +73,7 @@ class RRDManager():
 
     def get_starttime(self, delta):
         now = datetime.datetime.now()
-        delta = datetime.timedelta(hours=6)
+        delta = datetime.timedelta(minutes=delta)
         # no use of timestamp() function, because not available in python 3.2
         start = int(mktime((now - delta).timetuple()))
         
@@ -114,4 +114,5 @@ class RRDManager():
             subprocess.check_call(cmd)
 
             msg = "Created graph '{0}'."
-            logging.info(msg.format(name))
+            logging.debug(msg.format(name + '_' + spanname))
+
