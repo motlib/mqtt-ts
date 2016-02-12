@@ -70,41 +70,48 @@ class RRDManager():
         msg = "Updated rrd '{0}' with value {1}."
         logging.debug(msg.format(filepath, value))
 
-        
-    def create_graph(self, name, graph, signalopts):
+
+    def get_starttime(self, delta):
         now = datetime.datetime.now()
         delta = datetime.timedelta(hours=6)
         # no use of timestamp() function, because not available in python 3.2
         start = int(mktime((now - delta).timetuple()))
+        
+        return start
+    
+        
+    def create_graphs(self, name, graph, signalopts):
+        for spanname, span in graph['timespans'].items():
+            start = self.get_starttime(span)
+            
+            graphfile = self.get_graphfile(name, spanname)
 
-        graphfile = self.get_graphfile(name, '6h')
+            cmd = [
+                'rrdtool',
+                'graph',
+                graphfile,
+                '--start', str(start),
+                '-w', str(graph['width']),
+                '-h', str(graph['height']),
+                '--title', graph['title'],
+            ]
 
-        cmd = [
-            'rrdtool',
-            'graph',
-            graphfile,
-            '--start', str(start),
-            '-w', '1024',
-            '-h', '768',
-            '--title', graph['title'],
-        ]
+            for opt in graph['rrdopts']:
+                cmd.append(opt)
 
-        for opt in graph['rrdopts']:
-            cmd.append(opt)
+            for signal in graph['signals']:
+                rrdfile = self.get_rrdfile(signal)
+                cmd.append('DEF:{signal}={rrdfile}:value:AVERAGE'.format(
+                    signal=signal,
+                    rrdfile=rrdfile))
 
-        for signal in graph['signals']:
-            rrdfile = self.get_rrdfile(signal)
-            cmd.append('DEF:{signal}={rrdfile}:value:AVERAGE'.format(
-                signal=signal,
-                rrdfile=rrdfile))
+            for signal in graph['signals']:
+                color = signalopts[signal]['color']
+                cmd.append('LINE2:{signal}#{color}'.format(
+                    signal=signal,
+                    color=color))
 
-        for signal in graph['signals']:
-            color = signalopts[signal]['color']
-            cmd.append('LINE2:{signal}#{color}'.format(
-                signal=signal,
-                color=color))
+            subprocess.check_call(cmd)
 
-        subprocess.check_call(cmd)
-
-        msg = "Created graph '{0}'."
-        logging.info(msg.format(name))
+            msg = "Created graph '{0}'."
+            logging.info(msg.format(name))

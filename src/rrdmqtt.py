@@ -94,10 +94,25 @@ class RrdMqtt():
             msg = "Failed to update rrdfile '{0}'."
             logging.exception(msg.format(filepath))
 
+            
+    def create_graphs(self):
+        for name,graph in self.graphs.items():
 
+            # take the default settings and update them with the
+            # actual config of the graph
+            graphcfg = self.cfg['rrdmqtt']['graphconfig'].copy()
+            graphcfg.update(graph)
+
+            self.rrd.create_graphs(
+                name,
+                graph=graphcfg,
+                signalopts=self.signals)
+            
+            
     def run(self):
-
-        cnt = self.cfg['rrdmqtt']['graph_interval']
+        graph_int = self.cfg['rrdmqtt']['graphconfig']['interval']
+        cnt = graph_int
+        
         while True:
             self.mqtt.tick()
             
@@ -107,13 +122,8 @@ class RrdMqtt():
             if cnt > 0:
                 cnt -= 1
             else:
-                for name,graph in self.graphs.items():
-                    self.rrd.create_graph(
-                        name,
-                        graph=graph,
-                        signalopts=self.signals)
-
-                cnt = self.cfg['rrdmqtt']['graph_interval']
+                self.create_graphs()
+                cnt = graph_int
                 
             sleep(1)
         

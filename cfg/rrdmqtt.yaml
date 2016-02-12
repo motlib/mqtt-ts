@@ -6,7 +6,17 @@ mqtt:
 rrdmqtt:
   graphdir: ./graph
   datadir: ./data
-  graph_interval: 10
+
+  graphconfig:
+    interval: 10
+    width: 1024
+    height: 768
+    timespans:
+      6h: 360
+      day: 1440
+      week: 10080
+      month: 302400
+  
 
   signals:
     pressure:
