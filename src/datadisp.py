@@ -5,17 +5,23 @@ import sys
 from time import sleep
 import yaml
 
-from wdgtfact import WidgetFactory
-from scrman import ScreenManager
+from utils.wdgtfact import WidgetFactory
+from utils.scrman import ScreenManager
 from utils.mqttman import MQTTManager
 
 
 MQTT_BROKER = '192.168.0.21'
 
 class DataDisp():
-    '''Main class for the data display application.'''
+    '''Main class for the MQTT data display application.'''
     
     def setup_args(self):
+        '''Set up the command line parser and parse arguments. 
+
+        The result is stored in self.args.
+
+        '''
+        
         parser = ArgumentParser()
 
         parser.add_argument(
@@ -37,7 +43,12 @@ class DataDisp():
     
 
     def setup_logging(self):
-        '''Set up the logging framework.'''
+        '''Set up the logging framework.
+
+        Logfile and loglevel are set based on the command line args
+        `logfile` and `verbose`.
+
+        '''
         
         if self.args.verbose:
             level = logging.DEBUG
@@ -54,6 +65,12 @@ class DataDisp():
 
         
     def load_config(self):
+        '''Load the configuration file.
+
+        The file is specified by command line argument `logfile`.
+
+        '''
+        
         cfgfile = self.args.cfg
 
         try:
