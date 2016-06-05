@@ -1,0 +1,18 @@
+
+mqtt:
+  # hostname of the MQTT broker
+  broker: bpi1.fritz.box
+  
+  # Todo use hostname
+  node_name: rpi2
+
+  # MQTT topic prefix
+  mqtt_topic_prefix: /sensors
+
+
+sensors:
+  loadavg:
+    sensor_class: sensors.LoadAvg.LoadAvg
+
+  
+    

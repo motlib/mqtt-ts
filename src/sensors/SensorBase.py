@@ -80,15 +80,15 @@ class SensorEvent():
 
 
 class SensorBase(object):
-    def __init__(self, sensor_name):
+    def __init__(self, scfg):
         
-        self._sensor_name = sensor_name
-        self._description = ''
+        self._sensor_name = scfg['sensor_name']
+        self._description = scfg.get('description', '')
         
         # set up a logger
-        self._logger = logging.getLogger(
-            "Sensor_'{0}'".format(
-                sensor_name))
+        #self._logger = logging.getLogger(
+        #    "Sensor_'{0}'".format(
+        #        self.sensor_name))
                 
     def getName(self):
         return self._sensor_name

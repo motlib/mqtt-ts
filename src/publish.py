@@ -1,15 +1,50 @@
 '''Script to publish sensor values (events) to a MQTT broker.'''
 
+
 import logging
+import paho.mqtt.publish as mqtt_pub
 import time
 import os
 
-import paho.mqtt.publish as publish
 from sensorconfig import config, get_sensors
-
 from utils.cmdlapp import CmdlApp
+import sensors
 
 class MqttPublish(CmdlApp):
+    def __init__(self):
+        CmdlApp.__init__(self)
+
+        self.cmdlapp_config(has_cfgfile=True)
+
+
+    def get_sensor_class(self, name):
+
+        mod_name = '.'.join(name.split('.')[0:-1])
+
+        np = name.split('.')
+        p = __import__(mod_name)
+        for n in np[1:]:
+            p = getattr(p, n)
+        
+        return p
+
+
+    def create_sensors(self):
+        sensors = []
+
+        for sname,scfg in self.cfg['sensors'].items():
+            cls = self.get_sensor_class(scfg['sensor_class'])
+            
+            # add sensor name to config structure
+            scfg['sensor_name'] = sname
+
+            inst = cls(scfg)
+
+            sensors.append(inst)
+
+        return sensors
+
+
     def get_mqtt_path(self, evt):
         data = {
             'prefix': config['mqtt_topic_prefix'],
@@ -21,6 +56,7 @@ class MqttPublish(CmdlApp):
         path_tmpl = '{prefix}/{node}/{sensor}/{quantity}'
     
         return path_tmpl.format(**data)
+
 
     def sample_sensors(self):
         all_evts = []
@@ -47,7 +83,7 @@ class MqttPublish(CmdlApp):
             # The publish might fail, e.g. due to network problems. Just log 
             # the exception and try again next time.
             try:
-                publish.single(
+                mqtt_pub.single(
                     topic=self.get_mqtt_path(evt),
                     payload=evt.toJSON(),
                     hostname=config['mqtt_broker'])
@@ -60,7 +96,10 @@ class MqttPublish(CmdlApp):
         values to the MQTT broker.'''
 
         logging.info('Setting up sensors')
-        self.sensors = get_sensors()
+        #self.sensors = get_sensors()
+
+        self.sensors = self.create_sensors()
+
         logging.debug('Sensors initialized.')
 
 

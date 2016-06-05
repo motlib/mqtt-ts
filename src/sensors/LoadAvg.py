@@ -4,9 +4,9 @@ from sensors.SensorBase import SensorBase, SensorEvent
 
 class LoadAvg(SensorBase):
     
-    def __init__(self, sensor_name):
+    def __init__(self, scfg):
         SensorBase.__init__(self, 
-            sensor_name=sensor_name)
+            scfg=scfg)
         
         
     def sampleValues(self, valuetype=None):
