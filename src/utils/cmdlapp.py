@@ -3,13 +3,20 @@
 __author__ = 'Andreas <andreas@a-netz.de>'
 
 
-import logging
 from argparse import ArgumentParser
-
+import logging
+import sys
+import yaml
 
 class CmdlApp():
     def __init__(self):
-        pass
+        # set all config values to default values
+        self.cmdlapp_config()
+
+
+    def cmdlapp_config(self, has_cfgfile=False):
+        self.has_cfgfile = has_cfgfile
+
 
     def setup_args(self):
         self.parser = ArgumentParser()
@@ -23,6 +30,11 @@ class CmdlApp():
             '-l', '--logfile',
             help='Log output to logfile.',
             default=None)
+
+        if self.has_cfgfile == True:
+            self.parser.add_argument(
+                '-c', '--cfg',
+                help='Path to the YAML config file.')
 
     
     def setup_logging(self):
@@ -49,13 +61,39 @@ class CmdlApp():
         msg = "Logging system initialized to level '{0}'."
         logging.debug(msg.format(levelname))
 
+
+    def load_cfgfile(self):
+        '''Load the configuration file.
+
+        The file is specified by command line argument `logfile`.
+
+        '''
         
+        msg = "Reading config file '{0}'."
+        logging.debug(msg.format(self.args.cfg))
+
+        try:
+            with open(self.args.cfg, 'r') as f:
+                self.cfg = yaml.load(f)
+        except:
+            msg = "Failed to load config file '{0}'."
+
+            if self.args.verbose:
+                logging.exception(msg.format(self.args.cfg))
+            else:
+                logging.error(msg.format(self.args.cfg))
+
+            sys.exit(1)
+
+
     def run(self):
         self.setup_args()
         self.args = self.parser.parse_args()
 
         self.setup_logging()
 
+        if self.has_cfgfile:
+            self.load_cfgfile()
 
         self.main_fct()
 

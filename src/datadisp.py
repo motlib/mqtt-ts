@@ -1,3 +1,5 @@
+'''Script to display values received from an MQTT broker.'''
+
 from argparse import ArgumentParser
 import curses
 import logging
@@ -13,43 +15,15 @@ from utils.cmdlapp import CmdlApp
 
 class DataDisp(CmdlApp):
     '''Main class for the MQTT data display application.'''
+
+    def __init__(self):
+        CmdlApp.__init__(self)
+
+        self.cmdlapp_config(has_cfgfile=True)
     
-    def setup_args(self):
-        '''Override functoin from CmdlApp. Add additional arguments to
-        command-line parser.
-        '''
 
-        CmdlApp.setup_args(self)
-
-        self.parser.add_argument(
-            '-c', '--cfg',
-            help='Path to the YAML config file.',
-            default='datadisp.yaml')
-    
-        
-    def load_config(self):
-        '''Load the configuration file.
-
-        The file is specified by command line argument `logfile`.
-
-        '''
-        
-        msg = "Reading config file '{0}'."
-        logging.debug(msg.format(self.args.cfg))
-
-        try:
-            with open(self.args.cfg, 'r') as f:
-                self.cfg = yaml.load(f)
-        except:
-            msg = "Failed to load config file '{0}'."
-            logging.error(msg.format(self.args.cfg))
-            sys.exit(1)
-
-            
     def curses_main(self, stdscr):
         try:
-            self.load_config()
-            
             self.scrman = ScreenManager(stdscr)
             self.mqtt = MQTTManager(self.cfg['mqtt']['broker'])
 
