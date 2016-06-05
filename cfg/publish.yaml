@@ -14,5 +14,15 @@ sensors:
   loadavg:
     sensor_class: sensors.LoadAvg.LoadAvg
 
+  cputemp:
+    sensor_class: sensors.RPiInternalTemp.RPiInternalTemp
   
-    
+  room:
+    sensor_class: sensors.w1therm.W1ThermSensor
+    w1_id: "10-0008029061ff"
+        
+  outside:
+    sensor_class: sensors.w1therm.W1ThermSensor
+    w1_id: "10-0008028d5e47"
+
+  

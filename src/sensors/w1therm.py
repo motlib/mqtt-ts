@@ -2,11 +2,10 @@ from sensors.SensorBase import SensorBase, SensorEvent
 
 class W1ThermSensor(SensorBase):
     
-    def __init__(self, sensor_name, sensor_id):
-        SensorBase.__init__(self, 
-            sensor_name=sensor_name)
+    def __init__(self, scfg):
+        SensorBase.__init__(self, scfg)
 
-        self.sensor_id = sensor_id
+        self.sensor_id = scfg['w1_id']
         
         
     def sampleValues(self, valuetype=None):
