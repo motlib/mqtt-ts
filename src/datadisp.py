@@ -60,6 +60,7 @@ class DataDisp(CmdlApp):
 
             logging.info('Set up screen. Everything is ready to show some data.')
         except:
+            curses.endwin()
             logging.exception('Failed to set up screen.')
             sys.exit(1)
             
@@ -71,6 +72,7 @@ class DataDisp(CmdlApp):
                     
                 sleep(1)
         except Exception as e:
+            curses.endwin()
             logging.exception('Main loop failed')
             sys.exit(1)
 
