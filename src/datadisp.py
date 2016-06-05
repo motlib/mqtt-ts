@@ -11,8 +11,6 @@ from utils.mqttman import MQTTManager
 from utils.cmdlapp import CmdlApp
 
 
-MQTT_BROKER = '192.168.0.21'
-
 class DataDisp(CmdlApp):
     '''Main class for the MQTT data display application.'''
     
@@ -50,9 +48,6 @@ class DataDisp(CmdlApp):
             
     def curses_main(self, stdscr):
         try:
-            self.setup_args()
-            
-            self.setup_logging()
             self.load_config()
             
             self.scrman = ScreenManager(stdscr)
@@ -62,7 +57,13 @@ class DataDisp(CmdlApp):
             wdgtcfg = self.cfg['datadisp']['widgets']
             widgets = wdgtfactory.create_widgets(wdgtcfg)
             self.scrman.add_widgets(widgets)
-    
+
+            logging.info('Set up screen. Everything is ready to show some data.')
+        except:
+            logging.exception('Failed to set up screen.')
+            sys.exit(1)
+            
+        try:
             # endless loop for data display
             while True:
                 self.mqtt.tick()
@@ -70,7 +71,6 @@ class DataDisp(CmdlApp):
                     
                 sleep(1)
         except Exception as e:
-            print(e)
             logging.exception('Main loop failed')
             sys.exit(1)
 

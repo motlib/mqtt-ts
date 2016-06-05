@@ -1,4 +1,11 @@
+'''Read temperature of the Raspberry Pi cpu from /sys filesystem.'''
+
+__author__ = 'Andreas <andreas@a-netz.de>'
+
+
+import logging
 from apps.valuedisp import ValueDisplayApp
+
 
 class RPiTemperature(ValueDisplayApp):
     '''Display the local CPU temperature of the RPi.'''
@@ -11,9 +18,13 @@ class RPiTemperature(ValueDisplayApp):
 
         
     def on_update(self):
-        with open('/sys/class/thermal/thermal_zone0/temp', 'r') as f:
-            tstr = f.read()
+        try:
+            with open('/sys/class/thermal/thermal_zone0/temp', 'r') as f:
+                tstr = f.read()
 
-        self.set_value(int(tstr) / 1000)
+            self.set_value(int(tstr) / 1000)
+        except:
+            logging.exception('Failed to read temperature.')
+
 
         

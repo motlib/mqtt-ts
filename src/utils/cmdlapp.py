@@ -42,6 +42,7 @@ class CmdlApp():
 
         if self.args.logfile != None:
             lcfg['filename'] = self.args.logfile
+            lcfg['filemode'] = 'a'
 
         logging.basicConfig(**lcfg)
 
