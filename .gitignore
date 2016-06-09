@@ -6,3 +6,6 @@ __pycache__
 
 # ignore config file instances, just commit templates
 cfg/*.yaml
+
+# Here goes the data. 
+data/* 
