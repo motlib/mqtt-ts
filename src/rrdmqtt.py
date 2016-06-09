@@ -18,10 +18,10 @@ class RrdMqtt(CmdlApp):
             has_cfgfile=True)
        
 
-    def load_config(self):
+    def load_cfgfile(self):
         '''Override load_config from CmdlApp base class.'''
         
-        CmdlApp.load_config(self)
+        CmdlApp.load_cfgfile(self)
         
         # for convenient access...
         self.sig_cfg = self.cfg['rrdmqtt']['signals']
