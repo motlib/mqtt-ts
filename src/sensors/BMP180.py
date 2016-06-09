@@ -1,9 +1,11 @@
-#!/usr/bin/env python
+'''Read the temperature and pressure from a BMP180 I2C sensor.'''
 
 
-from sensors.sbase import I2CSensorBase, SensorEvent
 import struct
 import time
+
+from sensors.sbase import I2CSensorBase
+
 
 # Default I2C address
 _DEFAULT_ADDRESS = 0x77
@@ -179,7 +181,8 @@ class BMP180(I2CSensorBase):
         
         return _pressure
 
-    def sampleValues(self, valuetype=None):
+
+    def sample(self):
         t_raw = self._readRawTemp()
         p_raw = self._readRawPressure()
 
@@ -187,50 +190,7 @@ class BMP180(I2CSensorBase):
         p = self._calcPressure(t_raw, p_raw)
         
         return [
-            SensorEvent(self.getName(), t, 'C', 'temperature'),
-            SensorEvent(self.getName(), p, 'Pa', 'pressure')
+            self.new_event(t, 'C', 'temperature'),
+            self.new_event(p, 'Pa', 'pressure')
         ]
 
-
-# 
-# 
-# 	def _updateAltitude(self):
-# 		'''Calculates the altitude in meters.
-# 		
-# 		You need to call setSealevelPressure() before to set the current 
-# 		sealevel pressure and get correct results.'''
-# 		
-# 		# Calculation taken straight from section 3.6 of the datasheet.
-# 		pressure = float(self.getValue('pressure'))
-# 		
-# 		altitude = 44330.0 * (1.0 - pow(pressure / self._sealevel_pressure, (1.0 / 5.255)))
-# 		self._logger.debug('Altitude {0} m'.format(altitude))
-# 		
-# 		self._setValue('altitude', altitude)
-# 		
-# 		return altitude
-# 
-# 
-# 	def _updatePressureSealevel(self):
-# 		'''Updates the pressure at sealevel.
-# 		
-# 		You need to call setAltitude() before to set the current altitide and
-# 		get correct results.'''
-# 		
-# 		pressure = float(self.getValue('pressure'))
-# 		p0 = pressure / pow(1.0 - self._current_altitude / 44330.0, 5.255)
-# 		
-# 		self._logger.debug('Sealevel pressure {0} Pa'.format(p0))
-# 		
-# 		self._setValue('pressure_sealevel', p0)
-# 		
-# 		return p0
-# 
-# 
-# 	def setCurrentAltitude(self, height):
-# 		self._current_altitude = height
-# 		
-# 		
-# 	def setSealevelPressure(self, pressure):
-# 		self._sealevel_pressure = pressure
-# 		

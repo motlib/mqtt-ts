@@ -1,7 +1,9 @@
+'''Read the temperature and humidity from a HTU21D sensor attached to
+the I2C bus.'''
 
 import struct
 import time
-from sensors.sbase import SensorBase, SensorEvent
+from sensors.sbase import SensorBase
 import fcntl
 import io
 
@@ -112,7 +114,7 @@ class HTU21D(SensorBase):
                   | self._otp_reload)
         self._iow.write(_CMD_WRITE_CONFIG + struct.pack('B', config))
 
-    def sampleValues(self, valuetype=None):
+    def sample(self):
         #vals = self._bus.read_i2c_block_data(
         #    self._address,
         #    _CMD_TEMPERATURE_HOLD, 
@@ -133,8 +135,8 @@ class HTU21D(SensorBase):
         _humidity = -6 + (125.0 * humid) / 2**16
 
         return [
-            SensorEvent(self.getName(), _temperature, 'C', 'temperature'),
-            SensorEvent(self.getName(), _humidity, '%RH', 'relative humidity'),
+            self.new_event(_temperature, 'C', 'temperature'),
+            self.new_event(_humidity, '%RH', 'relative humidity'),
         ]
     
 

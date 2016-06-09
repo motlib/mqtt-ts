@@ -1,7 +1,7 @@
 '''Sensor implementation for the load average values.'''
 
 
-from sensors.SensorBase import SensorBase, SensorEvent
+from sensors.sbase import SensorBase
 
 
 class LoadAvg(SensorBase):

@@ -1,7 +1,7 @@
 '''Read the temperature from a DS1820 onewire sensor.'''
 
 
-from sensors.sbase import SensorBase, SensorEvent
+from sensors.sbase import SensorBase
 
 
 class W1ThermSensor(SensorBase):

@@ -1,7 +1,7 @@
 '''Read the cpu temperature of the Raspberry Pi.'''
 
 
-from sensors.sbase import SensorBase, SensorEvent
+from sensors.sbase import SensorBase
 
 
 class RPiInternalTemp(SensorBase):

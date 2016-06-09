@@ -1,5 +1,7 @@
+'''Read the luminosity from a TSL2561 sensor attached to the I2C
+bus.'''
 
-from sensors.sbase import I2CSensorBase, SensorEvent
+from sensors.sbase import I2CSensorBase
 import time
 import logging
 
@@ -189,7 +191,7 @@ class TSL2561(I2CSensorBase):
         return lum
         
 
-    def sampleValues(self, valuetype=None):
+    def sample(self):
         '''Sample sensor values and return results as sensor events.
         
         :returns: List of sensor event objects.
@@ -201,7 +203,7 @@ class TSL2561(I2CSensorBase):
         lum = self._calcLuminosity(gi, ch0, ch1)
 
         return [
-            SensorEvent(self.getName(), lum, 'Lx', 'luminosity')
+            self.new_event(lum, 'Lx', 'luminosity')
         ]
 
     def _setPowerState(self, pwr_state):
