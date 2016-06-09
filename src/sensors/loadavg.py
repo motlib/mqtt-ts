@@ -5,7 +5,7 @@ from sensors.sbase import SensorBase
 
 
 class LoadAvg(SensorBase):
-    def sampleValues(self):
+    def sample(self):
         with open('/proc/loadavg', 'r') as f:
             data = f.read().split(' ')[0:3]
 
