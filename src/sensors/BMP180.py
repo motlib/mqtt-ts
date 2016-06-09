@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-from sensors.SensorBase import I2CSensorBase, SensorEvent
+from sensors.sbase import I2CSensorBase, SensorEvent
 import struct
 import time
 

@@ -1,4 +1,8 @@
-from sensors.SensorBase import SensorBase, SensorEvent
+'''Read the temperature from a DS1820 onewire sensor.'''
+
+
+from sensors.sbase import SensorBase, SensorEvent
+
 
 class W1ThermSensor(SensorBase):
     
@@ -8,8 +12,7 @@ class W1ThermSensor(SensorBase):
         self.sensor_id = scfg['w1_id']
         
         
-    def sampleValues(self, valuetype=None):
-
+    def sample(self):
         file = '/sys/bus/w1/devices/{0}/w1_slave'.format(
             self.sensor_id)
         
@@ -20,8 +23,8 @@ class W1ThermSensor(SensorBase):
         td = lines[1].split(' ')[9]
         td2 = td.split('=')[1]
 
-        temp = int(td2) / 1000.0    
+        temp = float(td2) / 1000.0 
         
         return [
-            SensorEvent(self.getName(), temp, 'degree celsius', 'temperature')
+            self.new_event(temp, 'degree celsius', 'temperature')
         ]

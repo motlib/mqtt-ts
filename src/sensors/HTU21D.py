@@ -1,7 +1,7 @@
 
 import struct
 import time
-from sensors.SensorBase import SensorBase, SensorEvent
+from sensors.sbase import SensorBase, SensorEvent
 import fcntl
 import io
 

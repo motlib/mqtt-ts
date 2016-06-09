@@ -1,16 +1,16 @@
-from sensors.SensorBase import SensorBase, SensorEvent
+'''Read the cpu temperature of the Raspberry Pi.'''
 
+
+from sensors.sbase import SensorBase, SensorEvent
 
 
 class RPiInternalTemp(SensorBase):
-    
-        
-    def sampleValues(self, valuetype=None):
+    def sample(self):
         with open('/sys/class/thermal/thermal_zone0/temp', 'r') as f:
-            temp = int(f.read())
+            temp = float(f.read())
         
         temp = temp / 1000.0    
         
         return [
-            SensorEvent(self.getName(), temp, 'degree celsius', 'temperature')
+            self.new_event(temp, 'degree celsius', 'temperature')
         ]

@@ -1,5 +1,5 @@
 
-from sensors.SensorBase import I2CSensorBase, SensorEvent
+from sensors.sbase import I2CSensorBase, SensorEvent
 import time
 import logging
 
