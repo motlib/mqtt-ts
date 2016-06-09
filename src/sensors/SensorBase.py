@@ -81,31 +81,46 @@ class SensorEvent():
 
 class SensorBase(object):
     def __init__(self, scfg):
-        
         self._sensor_name = scfg['sensor_name']
         self._description = scfg.get('description', '')
+
+        self.scfg = scfg
         
-        # set up a logger
-        #self._logger = logging.getLogger(
-        #    "Sensor_'{0}'".format(
-        #        self.sensor_name))
-                
+
     def getName(self):
-        return self._sensor_name
+        '''Returns the sensor name.'''
+
+        return self.scfg['sensor_name']
+
     
     def getDescription(self):
-        return self._description
+        '''Returns the sensor description.'''
+
+        return self.scfg['description']
+
     
-    def setDescription(self):
-        self._description = ''
-        
     def __str__(self):
-        return "Sensor_{0}".format(
-            self._sensor_name)
+        '''Return a string describing the sensor.'''
+
+        text = "Sensor '{0}' of type '{1}'"
+        return text.format(
+            self.getName(),
+            self.__class__.__name__)
         
-    def sampleValues(self):
-        pass
+
+    def sample(self):
+        '''Sample the sensor values for this instance. 
+
+        This function needs to be overridden in subclasses to actually
+        sample values.'''
+
+        raise Exception('This function needs to be implemented in subclasses.')
         
+
+    def new_event(self, value, unit, quantity):
+        '''Create a new SensorEvent instance.'''
+
+        return SensorEvent(self.getName(), value, unit, quantity)
 
         
 class I2CSensorBase(SensorBase):
