@@ -1,23 +1,34 @@
 # Configuration file for the rrdmqtt script.
 
 mqtt:
-  broker: bpi1
+  # Hostname of the MQTT broker
+  broker: bpi1.fritz.box
 
 rrdmqtt:
+  # Where to put the generated graphics
   graphdir: ./graph
+
+  # Where to store the rrd data
   datadir: ./data
 
+  # General settings for graphs
   graphconfig:
+
+    # how often to generate the graphs
     interval: 10
+    
+    # Width and height of the graphs 
     width: 1024
     height: 768
+
+    # Timespans to generate (separate graphics)
     timespans:
       6h: 360
       day: 1440
       week: 10080
-      month: 302400
+      month: 43200
   
-
+  # The MQTT signals to receive
   signals:
     pressure:
       topic: /sensors/rpi2/BMP180/pressure
@@ -49,6 +60,10 @@ rrdmqtt:
       timeout: 10
       color: bb00bb
       
+  # The graphs to generate.
+  #
+  # For each graph defined here, multiple images are generated according to 
+  # the defined timespans above.
 
   graphs:
     hum_rel:

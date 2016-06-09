@@ -45,7 +45,7 @@ class CmdlApp():
             level = logging.DEBUG
             levelname = 'debug'
         else:
-            level = logging.WARNING
+            level = logging.INFO
             levelname = 'warning'
         
         lcfg = {

@@ -9,6 +9,8 @@ mqtt:
   # MQTT topic prefix
   topic_prefix: /sensors
 
+  # Interval to publish sensor values in seconds
+  interval: 5
 
 sensors:
   loadavg:

@@ -14,7 +14,8 @@ from utils.cmdlapp import CmdlApp
 class RrdMqtt(CmdlApp):
     def __init__(self):
         CmdlApp.__init__(self)
-        self.cmdlapp_config(has_cfgfile=True)
+        self.cmdlapp_config(
+            has_cfgfile=True)
        
 
     def load_config(self):
@@ -23,12 +24,12 @@ class RrdMqtt(CmdlApp):
         CmdlApp.load_config(self)
         
         # for convenient access...
-        self.signals = self.cfg['rrdmqtt']['signals']
+        self.sig_cfg = self.cfg['rrdmqtt']['signals']
         self.graphs = self.cfg['rrdmqtt']['graphs']
 
         
     def update_signal(self, signal):
-        sigcfg = self.signals[signal]
+        sigcfg = self.sig_cfg[signal]
         
         try:
             status = self.mqtt.get_status(sigcfg['topic'])
@@ -58,7 +59,7 @@ class RrdMqtt(CmdlApp):
             self.rrd.create_graphs(
                 name,
                 graph=graphcfg,
-                signalopts=self.signals)
+                signalopts=self.sig_cfg)
 
 
     def initialize(self):
@@ -68,7 +69,7 @@ class RrdMqtt(CmdlApp):
             datadir=self.cfg['rrdmqtt']['datadir'],
             graphdir=self.cfg['rrdmqtt']['graphdir'])
 
-        for name, signal in self.signals.items():
+        for name, signal in self.sig_cfg.items():
             # Check if the rrd file exists and create if necessary
             self.rrd.check_rrd(name)
 
@@ -76,7 +77,7 @@ class RrdMqtt(CmdlApp):
             self.mqtt.add_topic(signal['topic'])
             self.mqtt.set_timeout(signal['topic'], signal['timeout'])
 
-            
+
     def main_fct(self):
         self.initialize()
         
@@ -86,7 +87,7 @@ class RrdMqtt(CmdlApp):
         while True:
             self.mqtt.tick()
             
-            for signal in self.signals.keys():
+            for signal in self.sig_cfg.keys():
                 self.update_signal(signal)
 
             if cnt > 0:
@@ -99,5 +100,5 @@ class RrdMqtt(CmdlApp):
 
 
 if __name__ == '__main__':
-    DataDisp().run()
+    RrdMqtt().run()
 

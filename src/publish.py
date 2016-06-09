@@ -82,14 +82,17 @@ class MqttPublish(CmdlApp):
 
 
     def publish_events(self, evts):
-        logging.debug('Publishing data.')
-
         for evt in evts:
             # The publish might fail, e.g. due to network problems. Just log 
             # the exception and try again next time.
             try:
+                topic = self.get_mqtt_path(evt)
+
+                msg = "Publishing to topic '{0}'."
+                logging.debug(msg.format(topic))
+
                 mqtt_pub.single(
-                    topic=self.get_mqtt_path(evt),
+                    topic=topic,
                     payload=evt.toJSON(),
                     hostname=self.cfg['mqtt']['broker'])
             except:
@@ -101,6 +104,11 @@ class MqttPublish(CmdlApp):
         values to the MQTT broker.'''
 
         self.sensors = self.create_sensors()
+
+        msg = "Publishing sensor values with {0}s interval."
+        logging.info(
+            msg.format(
+                self.cfg['mqtt']['interval']))
 
         while True:
             evts = self.sample_sensors()
