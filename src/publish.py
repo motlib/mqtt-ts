@@ -71,7 +71,7 @@ class MqttPublish(CmdlApp):
             logging.debug(msg.format(sensor.getName()))
 
             try:
-                sevts = sensor.sampleValues()
+                sevts = sensor.sample()
 
                 all_evts.extend(sevts)
             except:
