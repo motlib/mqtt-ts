@@ -8,6 +8,7 @@ import logging
 import sys
 import yaml
 
+
 class CmdlApp():
     def __init__(self):
         # set all config values to default values
@@ -59,7 +60,7 @@ class CmdlApp():
         logging.basicConfig(**lcfg)
 
         msg = "Logging system initialized to level '{0}'."
-        logging.debug(msg.format(levelname))
+        logging.info(msg.format(levelname))
 
 
     def load_cfgfile(self):
@@ -69,8 +70,8 @@ class CmdlApp():
 
         '''
         
-        msg = "Reading config file '{0}'."
-        logging.debug(msg.format(self.args.cfg))
+        msg = "Loading config file '{0}'."
+        logging.info(msg.format(self.args.cfg))
 
         try:
             with open(self.args.cfg, 'r') as f:
@@ -87,6 +88,13 @@ class CmdlApp():
 
 
     def run(self):
+        '''Function to start the actual work. 
+
+        This function is called by the deriving class to start
+        everything. Command line arguments are parsed, the config file
+        is loaded if necessary and then the `main_fct` function
+        (implemented by the subclass is called to do some work.'''
+
         self.setup_args()
         self.args = self.parser.parse_args()
 
