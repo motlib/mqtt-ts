@@ -7,48 +7,13 @@ import time
 import os
 
 from utils.cmdlapp import CmdlApp
-
-class MqttPublish(CmdlApp):
-    def __init__(self):
-        # we are a cmd-line tool with config file
-        CmdlApp.__init__(self)
-        self.cmdlapp_config(has_cfgfile=True)
+from utils.sched import Scheduler, Task
+from utils.clsinst import get_instance_by_name
 
 
-    def get_sensor_class(self, name):
-        '''Instanciate the sensor classes based on the config.'''
-
-        name_parts = name.split('.')
-
-        mod_name = '.'.join(name_parts[0:-1])
-
-        item = __import__(mod_name)
-        for name in name_parts[1:]:
-            item = getattr(item, name)
-        
-        return item
-
-
-    def create_sensors(self):
-        '''Create sensor classes according to the configuration.'''
-
-        sensors = []
-
-        for sname, scfg in self.cfg['sensors'].items():
-            # add sensor name to config structure
-            scfg['sensor_name'] = sname
-
-            msg = "Instanciate sensor class '{sensor_class}' for sensor " \
-                "'{sensor_name}'."
-            logging.info(msg.format(**scfg))
-
-            scls = self.get_sensor_class(scfg['sensor_class'])
-            sinst = scls(scfg)
-
-            sensors.append(sinst)
-
-        return sensors
-
+class MqttPublisher():
+    def __init__(self, cfg):
+        self.cfg = cfg
 
     def get_mqtt_path(self, evt):
         data = {
@@ -61,24 +26,6 @@ class MqttPublish(CmdlApp):
         path_tmpl = '{prefix}/{node}/{sensor}/{quantity}'
     
         return path_tmpl.format(**data)
-
-
-    def sample_sensors(self):
-        all_evts = []
-
-        for sensor in self.sensors:
-            msg = "Reading sensor '{0}'."
-            logging.debug(msg.format(sensor.getName()))
-
-            try:
-                sevts = sensor.sample()
-
-                all_evts.extend(sevts)
-            except:
-                msg = "Failed to sample sensor values of sensor '{0}'."
-                logging.exception(msg.format(sensor.getName()))
-        
-        return all_evts
 
 
     def publish_events(self, evts):
@@ -97,25 +44,78 @@ class MqttPublish(CmdlApp):
                     hostname=self.cfg['mqtt']['broker'])
             except:
                 logging.exception('Publish of MQTT value failed.')
+
+
+class SensorTask(Task):
+    '''Task that samples a sensor and publishes the sensor events. 
+
+    The task can be scheduled in regular intervals with the Scheduler
+    class.'''
+
+    def __init__(self, scfg, publisher):
+        Task.__init__(
+            self, 
+            interval=scfg['interval'], 
+            name='task_' + scfg['sensor_name'])
         
+        self.scfg = scfg
+        self.publisher = publisher
+
+        # Create an instance of the sensor class
+        args = [scfg]
+        self.sensor = get_instance_by_name(
+            scfg['sensor_class'],
+            *args)
+
+
+    def run(self):
+        msg = "Reading sensor '{0}'."
+        logging.debug(msg.format(self.sensor.getName()))
+
+        try:
+            sevts = self.sensor.sample()
+            
+            self.publisher.publish_events(sevts)
+        except:
+            msg = "Failed to sample sensor values of sensor '{0}'."
+            logging.exception(msg.format(sensor.getName()))
+        
+
+class MqttPublish(CmdlApp):
+    def __init__(self):
+        # we are a cmd-line tool with config file
+        CmdlApp.__init__(self)
+        self.cmdlapp_config(has_cfgfile=True)
+
+
+    def create_sensor_tasks(self, scheduler, publisher):
+        '''Create sensor classes according to the configuration.'''
+
+        for sname, scfg in self.cfg['sensors'].items():
+            # add sensor name to config structure
+            scfg['sensor_name'] = sname
+
+            # Take the sensor interval, default interval or 5s
+            scfg['interval'] = scfg.get(
+                'interval', 
+                self.cfg['mqtt'].get('interval', 5))
+
+            s_task = SensorTask(scfg, publisher)
+
+            scheduler.add_task(s_task)
+
     
     def main_fct(self):
         '''Set up the sensors and publish cyclic updates of the sensor
         values to the MQTT broker.'''
 
-        self.sensors = self.create_sensors()
+        publisher = MqttPublisher(self.cfg)
 
-        msg = "Publishing sensor values with {0}s interval."
-        logging.info(
-            msg.format(
-                self.cfg['mqtt']['interval']))
+        sched = Scheduler()
 
-        while True:
-            evts = self.sample_sensors()
-            self.publish_events(evts)
-
-            #TODO: better scheduling, best per sensor
-            time.sleep(5)
+        self.create_sensor_tasks(sched, publisher)
+        
+        sched.run()
 
 
 if __name__ == '__main__':

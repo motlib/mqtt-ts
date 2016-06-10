@@ -16,12 +16,14 @@ class Task():
         if self.fct != None:
             self.fct()
         else:
-            print("Running task '{0}'.".format(self.name))
+            msg = "Running dummy task function for task '{0}'."
+            logging.warning(msg.format(self.name))
 
 
 class Scheduler():
     def __init__(self):
         self.tasks = []
+        self.debug_log = False
 
 
     def add_task(self, task):
@@ -43,8 +45,9 @@ class Scheduler():
                 min_delay = d
                 min_task = task
                 
-        #msg = "Next task is '{0}' with {1}s delay."
-        #logging.debug(msg.format(min_task.name, min_delay))
+        if self.debug_log == True:
+            msg = "Next task is '{0}' with {1}s delay."
+            logging.debug(msg.format(min_task.name, min_delay))
 
         return (min_task, min_delay)
         
@@ -62,14 +65,17 @@ class Scheduler():
             if delay <= 0:
                 self.run_task(task)
             else:
-                #msg = 'Scheduler sleeping for {0}s.'
-                #logging.debug(msg.format(delay))
+                if self.debug_log == True:
+                    msg = 'Scheduler sleeping for {0}s.'
+                    logging.debug(msg.format(delay))
+
                 sleep(delay)
 
             
     def run_task(self, task):
-        msg = "Running task '{0}'."
-        logging.debug(msg.format(task.name))
+        if self.debug_log == True:
+            msg = "Running task '{0}'."
+            logging.debug(msg.format(task.name))
 
         task.run()
 
@@ -77,11 +83,9 @@ class Scheduler():
 
         now = datetime.now()
 
-        if task.next_run < now:
+        while task.next_run < now:
             msg = "Skipping task '{0}' due to overrun."
             logging.warning(msg.format(task.name))
-
-        while task.next_run < now:
             task.next_run += timedelta(seconds=task.interval)
 
 
