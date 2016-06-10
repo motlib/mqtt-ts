@@ -5,6 +5,7 @@ __author__ = 'Andreas <andreas@a-netz.de>'
 
 from argparse import ArgumentParser
 import logging
+import signal
 import sys
 import yaml
 
@@ -15,8 +16,9 @@ class CmdlApp():
         self.cmdlapp_config()
 
 
-    def cmdlapp_config(self, has_cfgfile=False):
+    def cmdlapp_config(self, has_cfgfile=False, reload_on_hup=False):
         self.has_cfgfile = has_cfgfile
+        self.reload_on_hup = reload_on_hup
 
 
     def setup_args(self):
@@ -100,8 +102,32 @@ class CmdlApp():
 
         self.setup_logging()
 
+        if self.reload_on_hup:
+            # register SIGHUP listener to reload config file. 
+            signal.signal(signal.SIGHUP, self.sighup_handler)
+
         if self.has_cfgfile:
             self.load_cfgfile()
 
         self.main_fct()
 
+
+    def on_reload(self):
+        '''Handler for reloading the configuration. 
+
+        Called when a SIGHUP signal is received. By default reloads
+        the configuration from file.'''
+
+        if self.reload_on_hup:
+            msg = 'Reloading configuration due to SIGHUP signal.'
+            logging.info(msg)
+
+            self.load_cfgfile()
+
+
+    def sighup_handler(self, sig, stack):
+        if sig == signal.SIGHUP and self.reload_on_hup:
+            self.on_reload()
+        else:
+            # ignore any other signal
+            pass

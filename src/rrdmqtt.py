@@ -3,7 +3,6 @@
 import json
 import logging
 import os
-import signal
 import subprocess
 from time import sleep
 
@@ -16,7 +15,8 @@ class RrdMqtt(CmdlApp):
     def __init__(self):
         CmdlApp.__init__(self)
         self.cmdlapp_config(
-            has_cfgfile=True)
+            has_cfgfile=True,
+            reload_on_hup=True)
 
         self.stop_flag = False
        
@@ -82,17 +82,14 @@ class RrdMqtt(CmdlApp):
 
 
     def main_fct(self):
-        
-        # register SIGHUP listener to reload config file. In fact,
-        # just everything is restarted from scratch.
-        signal.signal(signal.SIGHUP, self.sighup_handler)
-
         while True:
             self.initialize()
         
             graph_int = self.cfg['rrdmqtt']['graphconfig']['interval']
             cnt = graph_int
-        
+            
+            # TODO: Use scheduler class
+            self.stop_flag = False
             while not self.stop_flag:
                 self.mqtt.tick()
             
@@ -107,15 +104,9 @@ class RrdMqtt(CmdlApp):
                 
                 sleep(1)
 
-            # if we come here, the we stopped due to the SIGHUP
-            # signal. So reload config and restart everything
-            self.load_cfgfile()
 
-
-    def sighup_handler(self, signal, stack):
-        msg = 'Stopping scheduler due to SIGHUP signal.'
-        logging.info(msg)
-
+    def on_reload(self):
+        CmdlApp.on_reload(self)
         self.stop_flag = True
 
 

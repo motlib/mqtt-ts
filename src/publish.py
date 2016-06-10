@@ -5,7 +5,6 @@ import logging
 import paho.mqtt.publish as mqtt_pub
 import paho.mqtt.client as mqtt
 import os
-import signal
 import time
 
 from utils.cmdlapp import CmdlApp
@@ -91,7 +90,10 @@ class MqttPublish(CmdlApp):
     def __init__(self):
         # we are a cmd-line tool with config file
         CmdlApp.__init__(self)
-        self.cmdlapp_config(has_cfgfile=True)
+
+        self.cmdlapp_config(
+            has_cfgfile=True,
+            reload_on_hup=True)
 
 
     def create_sensor_tasks(self, scheduler, publisher):
@@ -115,10 +117,6 @@ class MqttPublish(CmdlApp):
         '''Set up the sensors and publish cyclic updates of the sensor
         values to the MQTT broker.'''
 
-        # register SIGHUP listener to reload config file. In fact,
-        # just everything is restarted from scratch.
-        signal.signal(signal.SIGHUP, self.sighup_handler)
-
         while True:
             publisher = MqttPublisher(self.cfg)
 
@@ -128,16 +126,14 @@ class MqttPublish(CmdlApp):
         
             self.sched.run()
 
-            # if we come here, the scheduler stopped due to the SIGHUP
-            # signal. So reload config and restart everything
-            self.load_cfgfile()
 
-
-    def sighup_handler(self, signal, stack):
+    def on_reload(self):
         msg = 'Stopping scheduler due to SIGHUP signal.'
         logging.info(msg)
 
         self.sched.stop()
+
+        CmdlApp.on_reload(self)
 
 
 if __name__ == '__main__':
