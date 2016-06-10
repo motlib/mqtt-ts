@@ -24,6 +24,7 @@ class Scheduler():
     def __init__(self):
         self.tasks = []
         self.debug_log = False
+        self.stop_flag = False
 
 
     def add_task(self, task):
@@ -59,7 +60,7 @@ class Scheduler():
 
         self.init_tasks()
 
-        while True:
+        while not self.stop_flag:
             (task, delay) = self.find_next_task()
 
             if delay <= 0:
@@ -94,6 +95,9 @@ class Scheduler():
 
         for task in self.tasks:
             task.next_run = now + timedelta(seconds=task.offset)
+
+    def stop(self):
+        self.stop_flag = True
 
 
 if __name__ == '__main__':
