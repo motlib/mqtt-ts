@@ -95,7 +95,7 @@ class CmdlApp():
         This function is called by the deriving class to start
         everything. Command line arguments are parsed, the config file
         is loaded if necessary and then the `main_fct` function
-        (implemented by the subclass is called to do some work.'''
+        (implemented by the subclass) is called to do some work.'''
 
         self.setup_args()
         self.args = self.parser.parse_args()
@@ -109,8 +109,11 @@ class CmdlApp():
         if self.has_cfgfile:
             self.load_cfgfile()
 
-        self.main_fct()
-
+        try:
+            self.main_fct()
+        except:
+            logging.exception('Main function failed.')
+    
 
     def on_reload(self):
         '''Handler for reloading the configuration. 
