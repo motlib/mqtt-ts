@@ -8,4 +8,4 @@ __pycache__
 cfg/*.yaml
 
 # Here goes the data. 
-data/* 
+data/*

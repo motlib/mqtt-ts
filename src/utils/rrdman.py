@@ -107,7 +107,7 @@ class RRDManager():
 
             for signal in graph['signals']:
                 color = signalopts[signal]['color']
-                cmd.append('LINE2:{signal}#{color}'.format(
+                cmd.append('LINE2:{signal}#{color}:{signal}'.format(
                     signal=signal,
                     color=color))
 
