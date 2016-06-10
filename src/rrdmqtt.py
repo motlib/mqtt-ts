@@ -96,8 +96,8 @@ class RrdMqtt(CmdlApp):
             while not self.stop_flag:
                 self.mqtt.tick()
             
-                for signal in self.sig_cfg.keys():
-                    self.update_signal(signal)
+                for sig in self.sig_cfg.keys():
+                    self.update_signal(sig)
 
                 if cnt > 0:
                     cnt -= 1
