@@ -3,6 +3,7 @@
 
 import logging
 import paho.mqtt.publish as mqtt_pub
+import paho.mqtt.client as mqtt
 import os
 import signal
 import time
@@ -42,7 +43,8 @@ class MqttPublisher():
                 mqtt_pub.single(
                     topic=topic,
                     payload=evt.toJSON(),
-                    hostname=self.cfg['mqtt']['broker'])
+                    hostname=self.cfg['mqtt']['broker'],
+                    protocol=mqtt.MQTTv31)
             except:
                 logging.exception('Publish of MQTT value failed.')
 
@@ -82,7 +84,7 @@ class SensorTask(Task):
             self.publisher.publish_events(sevts)
         except:
             msg = "Failed to sample sensor values of sensor '{0}'."
-            logging.exception(msg.format(sensor.getName()))
+            logging.exception(msg.format(self.sensor.getName()))
         
 
 class MqttPublish(CmdlApp):
