@@ -3,6 +3,7 @@
 import json
 import logging
 import os
+import signal
 import subprocess
 from time import sleep
 
@@ -16,6 +17,8 @@ class RrdMqtt(CmdlApp):
         CmdlApp.__init__(self)
         self.cmdlapp_config(
             has_cfgfile=True)
+
+        self.stop_flag = False
        
 
     def load_cfgfile(self):
@@ -41,7 +44,7 @@ class RrdMqtt(CmdlApp):
                 self.rrd.update_rrd(signal, data['value'])
             
             else:
-                logging.warning('No data received.')
+                logging.debug('No data received.')
             
         except:
             msg = "Failed to update rrdfile '{0}'."
@@ -79,24 +82,41 @@ class RrdMqtt(CmdlApp):
 
 
     def main_fct(self):
-        self.initialize()
         
-        graph_int = self.cfg['rrdmqtt']['graphconfig']['interval']
-        cnt = graph_int
-        
-        while True:
-            self.mqtt.tick()
-            
-            for signal in self.sig_cfg.keys():
-                self.update_signal(signal)
+        # register SIGHUP listener to reload config file. In fact,
+        # just everything is restarted from scratch.
+        signal.signal(signal.SIGHUP, self.sighup_handler)
 
-            if cnt > 0:
-                cnt -= 1
-            else:
-                self.create_graphs()
-                cnt = graph_int
+        while True:
+            self.initialize()
+        
+            graph_int = self.cfg['rrdmqtt']['graphconfig']['interval']
+            cnt = graph_int
+        
+            while not self.stop_flag:
+                self.mqtt.tick()
+            
+                for signal in self.sig_cfg.keys():
+                    self.update_signal(signal)
+
+                if cnt > 0:
+                    cnt -= 1
+                else:
+                    self.create_graphs()
+                    cnt = graph_int
                 
-            sleep(1)
+                sleep(1)
+
+            # if we come here, the we stopped due to the SIGHUP
+            # signal. So reload config and restart everything
+            self.load_cfgfile()
+
+
+    def sighup_handler(self, signal, stack):
+        msg = 'Stopping scheduler due to SIGHUP signal.'
+        logging.info(msg)
+
+        self.stop_flag = True
 
 
 if __name__ == '__main__':
