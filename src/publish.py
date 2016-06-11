@@ -2,50 +2,14 @@
 
 
 import logging
-import paho.mqtt.publish as mqtt_pub
-import paho.mqtt.client as mqtt
 import os
 import time
 
 from utils.cmdlapp import CmdlApp
 from utils.sched import Scheduler, Task
 from utils.clsinst import get_instance_by_name
+from pub.evtpub import MqttPublisher
 
-
-class MqttPublisher():
-    def __init__(self, cfg):
-        self.cfg = cfg
-
-    def get_mqtt_path(self, evt):
-        data = {
-            'prefix': self.cfg['mqtt']['topic_prefix'],
-            'node': self.cfg['mqtt']['node_name'],
-            'sensor': evt.getSensorName(),
-            'quantity': evt.getQuantity(),
-            }
-
-        path_tmpl = '{prefix}/{node}/{sensor}/{quantity}'
-    
-        return path_tmpl.format(**data)
-
-
-    def publish_events(self, evts):
-        for evt in evts:
-            # The publish might fail, e.g. due to network problems. Just log 
-            # the exception and try again next time.
-            try:
-                topic = self.get_mqtt_path(evt)
-
-                msg = "Publishing to topic '{0}'."
-                logging.debug(msg.format(topic))
-
-                mqtt_pub.single(
-                    topic=topic,
-                    payload=evt.toJSON(),
-                    hostname=self.cfg['mqtt']['broker'],
-                    protocol=mqtt.MQTTv31)
-            except:
-                logging.exception('Publish of MQTT value failed.')
 
 
 class SensorTask(Task):
@@ -118,7 +82,12 @@ class MqttPublish(CmdlApp):
         values to the MQTT broker.'''
 
         while True:
-            publisher = MqttPublisher(self.cfg)
+            mqttcfg = self.cfg['mqtt']
+
+            publisher = MqttPublisher(
+                broker=mqttcfg['broker'],
+                node_name=mqttcfg['node_name'],
+                topic_prefix=mqttcfg['topic_prefix'])
 
             self.sched = Scheduler()
 
