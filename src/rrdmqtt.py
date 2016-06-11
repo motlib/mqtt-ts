@@ -7,7 +7,7 @@ import subprocess
 from time import sleep
 
 from utils.mqttman import MQTTManager
-from utils.rrdman import RRDManager
+from rrd.rrdman import RRDManager
 from utils.cmdlapp import CmdlApp
 
 

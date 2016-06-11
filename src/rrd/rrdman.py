@@ -1,3 +1,6 @@
+'''Functions to generate graphs from rrd databases.'''
+
+
 import datetime
 import logging
 import os
@@ -72,6 +75,9 @@ class RRDManager():
 
 
     def get_starttime(self, delta):
+        '''Returns the datetime object delta minutes in the past from
+        now.'''
+
         now = datetime.datetime.now()
         delta = datetime.timedelta(minutes=delta)
         # no use of timestamp() function, because not available in python 3.2
@@ -81,6 +87,7 @@ class RRDManager():
     
         
     def create_graphs(self, name, graph, signalopts):
+        # TODO: Refactor for function to create a single graph
         for spanname, span in graph['timespans'].items():
             start = self.get_starttime(span)
             
