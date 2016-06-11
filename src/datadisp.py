@@ -7,8 +7,8 @@ import sys
 from time import sleep
 import yaml
 
-from utils.wdgtfact import WidgetFactory
-from utils.scrman import ScreenManager
+from disp.wdgtfact import WidgetFactory
+from disp.scrman import ScreenManager
 from utils.mqttman import MQTTManager
 from utils.cmdlapp import CmdlApp
 
