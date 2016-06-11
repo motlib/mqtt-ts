@@ -2,53 +2,12 @@
 
 
 import logging
-import os
-import time
 
-from utils.cmdlapp import CmdlApp
-from utils.sched import Scheduler, Task
-from utils.clsinst import get_instance_by_name
 from pub.evtpub import MqttPublisher
+from pub.task import SensorTask
+from utils.cmdlapp import CmdlApp
+from utils.sched import Scheduler
 
-
-
-class SensorTask(Task):
-    '''Task that samples a sensor and publishes the sensor events. 
-
-    The task can be scheduled in regular intervals with the Scheduler
-    class.'''
-
-    def __init__(self, scfg, publisher):
-        Task.__init__(
-            self, 
-            interval=scfg['interval'], 
-            name='task_' + scfg['sensor_name'])
-        
-        self.scfg = scfg
-        self.publisher = publisher
-
-        # Create an instance of the sensor class
-        args = [scfg]
-        self.sensor = get_instance_by_name(
-            scfg['sensor_class'],
-            *args)
-
-        msg = "Created sensor instance '{sensor_name}' from class '{sensor_class}'."
-        logging.info(msg.format(**scfg))
-
-
-    def run(self):
-        msg = "Reading sensor '{0}'."
-        logging.debug(msg.format(self.sensor.getName()))
-
-        try:
-            sevts = self.sensor.sample()
-            
-            self.publisher.publish_events(sevts)
-        except:
-            msg = "Failed to sample sensor values of sensor '{0}'."
-            logging.exception(msg.format(self.sensor.getName()))
-        
 
 class MqttPublish(CmdlApp):
     def __init__(self):
@@ -64,7 +23,6 @@ class MqttPublish(CmdlApp):
         '''Create sensor classes according to the configuration.'''
 
         for sname, scfg in self.cfg['sensors'].items():
-            # add sensor name to config structure
             scfg['sensor_name'] = sname
 
             # Take the sensor interval, default interval or 5s
