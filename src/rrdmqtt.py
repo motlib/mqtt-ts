@@ -1,14 +1,13 @@
 '''Use rrdtool to plot graphics from sensor values received by MQTT.'''
 
+
 import json
 import logging
-import os
-import subprocess
-from time import sleep
 
 from utils.mqttman import MQTTManager
 from rrd.rrdman import RRDManager
 from utils.cmdlapp import CmdlApp
+from utils.sched import Scheduler, Task
 
 
 class RrdMqtt(CmdlApp):
@@ -51,6 +50,14 @@ class RrdMqtt(CmdlApp):
             logging.exception(msg.format(filepath))
 
 
+    def update_all_signals(self):
+        '''Task implementation to update signal values in rrd
+        databases.'''
+
+        for sig in self.sig_cfg.keys():
+            self.update_signal(sig)
+
+            
     def create_graphs(self):
         for name,graph in self.graphs.items():
 
@@ -81,28 +88,29 @@ class RrdMqtt(CmdlApp):
             self.mqtt.set_timeout(signal['topic'], signal['timeout'])
 
 
+
     def main_fct(self):
         while True:
             self.initialize()
         
-            graph_int = self.cfg['rrdmqtt']['graphconfig']['interval']
-            cnt = graph_int
-            
-            # TODO: Use scheduler class
-            self.stop_flag = False
-            while not self.stop_flag:
-                self.mqtt.tick()
-            
-                for sig in self.sig_cfg.keys():
-                    self.update_signal(sig)
+            sched = Scheduler()
 
-                if cnt > 0:
-                    cnt -= 1
-                else:
-                    self.create_graphs()
-                    cnt = graph_int
-                
-                sleep(1)
+            sched.add_task(Task(
+                    interval=1, 
+                    name='mqtt_tick', 
+                    fct=self.mqtt.tick))
+
+            sched.add_task(Task(
+                    interval=self.cfg['rrdmqtt']['graphconfig']['interval'],
+                    name='create_graphs',
+                    fct=self.create_graphs))
+
+            sched.add_task(Task(
+                    interval=1,
+                    name='upd_signals',
+                    fct=self.update_all_signals))
+                     
+            sched.run()
 
 
     def on_reload(self):
