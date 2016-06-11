@@ -5,6 +5,8 @@ from time import sleep
 import logging
 
 class Task():
+    '''Base class for scheduler tasks.'''
+
     def __init__(self, interval, offset=0, name='', fct=None):
         self.interval = interval
         self.offset = offset
@@ -21,13 +23,27 @@ class Task():
 
 
 class Scheduler():
-    def __init__(self):
+    def __init__(self, max_delay=2):
+        '''Initialize the scheduler.
+
+        The max_delay parameter can be used to limit the maximum sleep
+        time. This can be useful, if the scheduler shall be stopped
+        interactively.'''
+
+        self.max_delay = max_delay
+
         self.tasks = []
         self.debug_log = False
         self.stop_flag = False
 
+        # Time tolerance to schedule tasks. If a task is to be
+        # scheduled in less than sched_tolerance, it is executed
+        # directly to prevent very short delays that are not exact.
+        self.sched_tolerance = 0.05
 
     def add_task(self, task):
+        '''Add a task to be scheduled / executed by the scheduler.'''
+
         self.tasks.append(task)
 
 
@@ -63,9 +79,12 @@ class Scheduler():
         while not self.stop_flag:
             (task, delay) = self.find_next_task()
 
-            if delay <= 0:
+            if delay <= self.sched_tolerance:
                 self.run_task(task)
             else:
+                # Limit the maximum sleep time to max_delay. 
+                delay = min(delay, self.max_delay)
+
                 if self.debug_log == True:
                     msg = 'Scheduler sleeping for {0}s.'
                     logging.debug(msg.format(delay))
