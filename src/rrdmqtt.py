@@ -8,7 +8,7 @@ from utils.mqttman import MQTTManager
 from rrd.rrdman import RRDManager
 from utils.cmdlapp import CmdlApp
 from utils.sched import Scheduler, Task
-
+from sensors.sbase import SensorEvent
 
 class RrdMqtt(CmdlApp):
     def __init__(self):
@@ -38,9 +38,9 @@ class RrdMqtt(CmdlApp):
             payload = self.mqtt.get_payload(sigcfg['topic'])
 
             if payload != None:
-                data = json.loads(payload)
+                evt = SensorEvent.fromJson(payload)
 
-                self.rrd.update_rrd(signal, data['value'])
+                self.rrd.update_rrd(signal, evt.getValue())
             
             else:
                 logging.debug('No data received.')

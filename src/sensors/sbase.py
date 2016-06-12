@@ -67,7 +67,6 @@ class SensorEvent():
 
 
     def toJSON(self):
-    
         value = {
             'timestamp': self.getTimestamp().isoformat(),
             'sensor_name': self.getSensorName(),
@@ -77,6 +76,18 @@ class SensorEvent():
         }
     
         return json.dumps(value, sort_keys=True, indent=4)
+
+    
+    def fromJson(strdata):
+        '''Convert a JSON string back to a SensorEvent instance.'''
+        
+        data = json.loads(strdata)
+
+        return SensorEvent(
+            sensorname=data['sensor_name'],
+            value=data['value'],
+            unit=data['unit'],
+            quantity=data['quantity'])
 
 
 class SensorBase(object):
