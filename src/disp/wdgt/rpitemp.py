@@ -4,7 +4,7 @@ __author__ = 'Andreas <andreas@a-netz.de>'
 
 
 import logging
-from apps.valuedisp import ValueDisplayApp
+from disp.wdgt.valuedisp import ValueDisplayApp
 
 
 class RPiTemperature(ValueDisplayApp):

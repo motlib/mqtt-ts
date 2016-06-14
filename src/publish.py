@@ -25,11 +25,6 @@ class MqttPublish(CmdlApp):
         for sname, scfg in self.cfg['sensors'].items():
             scfg['sensor_name'] = sname
 
-            # Take the sensor interval, default interval or 5s
-            scfg['interval'] = scfg.get(
-                'interval', 
-                self.cfg['mqtt'].get('interval', 5))
-
             s_task = SensorTask(scfg, publisher)
 
             scheduler.add_task(s_task)

@@ -16,7 +16,7 @@ class SensorTask(Task):
     def __init__(self, scfg, publisher):
         Task.__init__(
             self, 
-            interval=scfg['interval'], 
+            interval=0, 
             name='task_' + scfg['sensor_name'])
         
         self.scfg = scfg
@@ -28,9 +28,20 @@ class SensorTask(Task):
             scfg['sensor_class'],
             *args)
 
+        if 'interval' in scfg:
+            itype = 'configured'
+            self.interval = scfg['interval']
+        else:
+            itype = 'default'
+            self.interval = self.sensor.get_default_interval()
+        
         msg = "Created sensor instance '{sensor_name}' from class " \
-            "'{sensor_class}'."
-        logging.info(msg.format(**scfg))
+            "'{sensor_class}'. Using {itype} sampling interval {ival}s." 
+        logging.info(msg.format(
+                sensor_name=scfg['sensor_name'],
+                sensor_class=scfg['sensor_class'],
+                itype=itype,
+                ival=self.interval))
 
 
     def run(self):

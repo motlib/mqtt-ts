@@ -19,12 +19,6 @@ class ChecksumError(SensorError):
     pass
 
 
-def evt_from_json(jsonstr):
-    data = json.loads(jsonstr)
-
-    return SensorEvent(**data)
-
-
 class SensorEvent():
     def __init__(self, sensorname, value, unit, quantity):
         self._sensorname = sensorname
@@ -96,6 +90,14 @@ class SensorBase(object):
         self._description = scfg.get('description', '')
 
         self.scfg = scfg
+
+        
+    def get_default_interval(self):
+        '''Returns the default value of the sensor sample interval.
+
+        Override this function to change the default value 10.'''
+
+        return 15
         
 
     def getName(self):

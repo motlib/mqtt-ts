@@ -1,6 +1,6 @@
 import json
 
-from apps.valuedisp import ValueDisplayApp
+from disp.wdgt.valuedisp import ValueDisplayApp
 from utils.mqttman import MQTTManager
             
 class MQTTSubscriberApp(ValueDisplayApp):

@@ -1,21 +1,18 @@
+
+
 import logging
 
-from apps.datedisp import DateTimeApp
-from apps.cycle import CycleIndicatorApp
-from apps.rpitemp import RPiTemperature
-from apps.mqttsub import MQTTSubscriberApp
+from disp.wdgt.datedisp import DateTimeApp
+from disp.wdgt.cycle import CycleIndicatorApp
+from disp.wdgt.rpitemp import RPiTemperature
+from disp.wdgt.mqttsub import MQTTSubscriberApp
+from utils.clsinst import get_instance_by_name
 
 class WidgetFactory():
 
+
     def _create_instance(self, name):
-        tbl = {
-            'DateTimeApp': DateTimeApp,
-            'CycleIndicatorApp': CycleIndicatorApp,
-            'RPiTemperature': RPiTemperature,
-            'MQTTSubscriberApp': MQTTSubscriberApp,
-        }
-        
-        return tbl[name]()
+        return get_instance_by_name(name)
 
 
     def create_widget(self, name, cfg):

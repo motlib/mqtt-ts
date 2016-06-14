@@ -1,4 +1,4 @@
-from apps.baseapp import BaseApp
+from disp.wdgt.baseapp import BaseApp
 
 class ValueDisplayApp(BaseApp):
     def __init__(self):

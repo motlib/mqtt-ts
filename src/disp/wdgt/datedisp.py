@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from apps.baseapp import BaseApp
+from disp.wdgt.baseapp import BaseApp
 
 class DateTimeApp(BaseApp):
     def __init__(self):

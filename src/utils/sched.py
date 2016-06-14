@@ -28,7 +28,7 @@ class Scheduler():
 
         The max_delay parameter can be used to limit the maximum sleep
         time. This can be useful, if the scheduler shall be stopped
-        interactively.'''
+        interactively to ensure that is responds in time.'''
 
         self.max_delay = max_delay
 
@@ -40,6 +40,7 @@ class Scheduler():
         # scheduled in less than sched_tolerance, it is executed
         # directly to prevent very short delays that are not exact.
         self.sched_tolerance = 0.05
+
 
     def add_task(self, task):
         '''Add a task to be scheduled / executed by the scheduler.'''
@@ -56,6 +57,9 @@ class Scheduler():
         
         # find task with minimum delay
         for task in self.tasks:
+            # do not schedule tasks which have the interval set to 0. 
+            if task.interval == 0:
+                continue
             d = (task.next_run - now).total_seconds()
             
             if (min_delay == None) or (d < min_delay):
