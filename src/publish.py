@@ -2,6 +2,7 @@
 
 
 import logging
+import socket
 
 from pub.evtpub import MqttPublisher
 from pub.task import SensorTask
@@ -22,12 +23,16 @@ class MqttPublish(CmdlApp):
     def create_sensor_tasks(self, scheduler, publisher):
         '''Create sensor classes according to the configuration.'''
 
+        hostname = socket.gethostname()
+
         for sname, scfg in self.cfg['sensors'].items():
             scfg['sensor_name'] = sname
 
-            s_task = SensorTask(scfg, publisher)
-
-            scheduler.add_task(s_task)
+            # Check if the sensor shall be created on this host and
+            # create if necessary.
+            if hostname in scfg['nodes'] or 'localhost' in scfg['nodes']:
+                s_task = SensorTask(scfg, publisher)
+                scheduler.add_task(s_task)
 
     
     def main_fct(self):
@@ -39,7 +44,6 @@ class MqttPublish(CmdlApp):
 
             publisher = MqttPublisher(
                 broker=mqttcfg['broker'],
-                node_name=mqttcfg['node_name'],
                 topic_prefix=mqttcfg['topic_prefix'])
 
             self.sched = Scheduler()

@@ -4,16 +4,18 @@
 import logging
 import paho.mqtt.publish as mqtt_pub
 import paho.mqtt.client as mqtt
+import socket
 
 
 class MqttPublisher():
     '''Publish sensor events to an MQTT broker.'''
 
-    def __init__(self, broker, node_name, topic_prefix='/sensors'):
+    def __init__(self, broker, topic_prefix='/sensors'):
         '''Initialize a MqttPublisher instance.'''
 
         self.broker = broker
-        self.node_name = node_name
+        # TODO: Choose between hostname and fqdn
+        self.node_name = socket.gethostname()
         self.topic_prefix = topic_prefix
 
 
