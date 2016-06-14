@@ -78,6 +78,10 @@ class Scheduler():
 
         This contain an infinite loop in which tasks are executed.'''
 
+        if len(self.tasks) == 0:
+            # TODO: Is there a better exception type?
+            raise Exception('No tasks scheduled. Scheduler has nothing to do.')
+
         self.init_tasks()
 
         while not self.stop_flag:
