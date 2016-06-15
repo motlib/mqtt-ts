@@ -7,7 +7,7 @@ import logging
 class Task():
     '''Base class for scheduler tasks.'''
 
-    def __init__(self, interval, offset=0, name='', fct=None):
+    def __init__(self, interval=0, offset=0, name='', fct=None):
         self.interval = interval
         self.offset = offset
         self.name = name

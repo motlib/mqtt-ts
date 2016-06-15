@@ -4,7 +4,6 @@
 import logging
 
 from utils.sched import Task
-from utils.clsinst import get_instance_by_name
 
 
 class SensorTask(Task):
@@ -13,38 +12,19 @@ class SensorTask(Task):
     The task can be scheduled in regular intervals with the Scheduler
     class.'''
 
-    def __init__(self, scfg, publisher):
+    def __init__(self, sensor, publisher, interval):
         Task.__init__(
             self, 
-            interval=0, 
-            name='task_' + scfg['sensor_name'])
-        
-        self.scfg = scfg
+            name='sensor_task_' + sensor.getName())
+
+        self.sensor = sensor
         self.publisher = publisher
-
-        # Create an instance of the sensor class
-        args = [scfg]
-        self.sensor = get_instance_by_name(
-            scfg['sensor_class'],
-            *args)
-
-        if 'interval' in scfg:
-            itype = 'configured'
-            self.interval = scfg['interval']
-        else:
-            itype = 'default'
-            self.interval = self.sensor.get_default_interval()
-        
-        msg = "Created sensor instance '{sensor_name}' from class " \
-            "'{sensor_class}'. Using {itype} sampling interval {ival}s." 
-        logging.info(msg.format(
-                sensor_name=scfg['sensor_name'],
-                sensor_class=scfg['sensor_class'],
-                itype=itype,
-                ival=self.interval))
+        self.interval = interval
 
 
     def run(self):
+        '''Sample the sensor and publish the sensor events.'''
+
         msg = "Reading sensor '{0}'."
         logging.debug(msg.format(self.sensor.getName()))
 

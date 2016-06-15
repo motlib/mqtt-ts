@@ -6,6 +6,7 @@ import socket
 
 from pub.evtpub import MqttPublisher
 from pub.task import SensorTask
+from utils.clsinst import get_instance_by_name
 from utils.cmdlapp import CmdlApp
 from utils.sched import Scheduler
 
@@ -20,8 +21,51 @@ class MqttPublish(CmdlApp):
             reload_on_hup=True)
 
 
-    def create_sensor_tasks(self, scheduler, publisher):
-        '''Create sensor classes according to the configuration.'''
+    def create_sensor(self, scfg):
+        # Create an instance of the sensor class
+        args = [scfg]
+        sensor = get_instance_by_name(
+            scfg['sensor_class'],
+            *args)
+
+        msg = ("Created sensor instance '{sensor_name}' from class " 
+            "'{sensor_class}'. ")
+        logging.info(msg.format(
+                sensor_name=scfg['sensor_name'],
+                sensor_class=scfg['sensor_class']))
+
+        return sensor
+
+
+    def create_sensor_task(self, scfg):
+        '''Create a sensor and a sensor task and schedule it for
+        execution.'''
+
+        sensor = self.create_sensor(scfg)
+        
+        if 'interval' in scfg:
+            itype = 'configured'
+            ival = scfg['interval']
+        else:
+            itype = 'default'
+            ival = self.sensor.get_default_interval()
+
+        s_task = SensorTask(
+            sensor=sensor, 
+            publisher=self.publisher, 
+            interval=ival)
+
+        self.sched.add_task(s_task)
+            
+        msg = "Scheduled '{sensor_name}' with {itype} sampling interval {ival}s." 
+        logging.info(msg.format(
+                sensor_name=sensor.getName(),
+                itype=itype,
+                ival=ival))
+        
+
+    def create_sensor_tasks(self):
+        '''Create sensor tasks according to the configuration.'''
 
         hostname = socket.gethostname()
 
@@ -31,8 +75,9 @@ class MqttPublish(CmdlApp):
             # Check if the sensor shall be created on this host and
             # create if necessary.
             if hostname in scfg['nodes'] or 'localhost' in scfg['nodes']:
-                s_task = SensorTask(scfg, publisher)
-                scheduler.add_task(s_task)
+
+                self.create_sensor_task(scfg)
+                                        
 
     
     def main_fct(self):
@@ -42,13 +87,13 @@ class MqttPublish(CmdlApp):
         while True:
             mqttcfg = self.cfg['mqtt']
 
-            publisher = MqttPublisher(
+            self.publisher = MqttPublisher(
                 broker=mqttcfg['broker'],
                 topic_prefix=mqttcfg['topic_prefix'])
 
             self.sched = Scheduler()
 
-            self.create_sensor_tasks(self.sched, publisher)
+            self.create_sensor_tasks()
         
             self.sched.run()
 
