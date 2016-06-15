@@ -111,6 +111,8 @@ class CmdlApp():
 
         try:
             self.main_fct()
+        except KeyboardInterrupt:
+            logging.info('Terminating due to Ctrl-C. Good bye.')
         except:
             logging.exception('Main function failed.')
     
@@ -127,8 +129,12 @@ class CmdlApp():
 
             self.load_cfgfile()
 
-
+            
     def sighup_handler(self, sig, stack):
+        '''Handler for the SIGHUP signal.
+
+        Triggers reloading of the configuration file.'''
+        
         if sig == signal.SIGHUP and self.reload_on_hup:
             self.on_reload()
         else:
