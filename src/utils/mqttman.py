@@ -157,7 +157,7 @@ class MQTTManager():
         self.connected = True
 
         
-    def on_disconnect(client, userdata, rc):
+    def on_disconnect(self, client, userdata, rc):
         '''Callback function for the mqtt client. Called when the connection to
         the broker is closed or lost.'''
         
