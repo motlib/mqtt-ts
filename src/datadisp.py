@@ -48,7 +48,6 @@ class DataDisp(CmdlApp):
         except Exception as e:
             curses.endwin()
             logging.exception('Main loop failed')
-            sys.exit(1)
 
 
     def main_fct(self):
