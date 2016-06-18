@@ -48,7 +48,7 @@ class MqttPublish(CmdlApp):
             ival = scfg['interval']
         else:
             itype = 'default'
-            ival = self.sensor.get_default_interval()
+            ival = sensor.get_default_interval()
 
         s_task = SensorTask(
             sensor=sensor, 
