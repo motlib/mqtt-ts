@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 '''Script to publish sensor values (events) to a MQTT broker.'''
 
 
@@ -74,10 +76,12 @@ class MqttPublish(CmdlApp):
 
             # Check if the sensor shall be created on this host and
             # create if necessary.
+
+            # TODO: Currently dangerous, because it's case-sensitive
+            # and ignores domain name.
             if hostname in scfg['nodes'] or 'localhost' in scfg['nodes']:
 
                 self.create_sensor_task(scfg)
-                                        
 
     
     def main_fct(self):

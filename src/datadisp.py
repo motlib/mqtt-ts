@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 '''Script to display values received from an MQTT broker.'''
 
 from argparse import ArgumentParser

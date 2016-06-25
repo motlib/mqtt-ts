@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 '''Use rrdtool to plot graphics from sensor values received by MQTT.'''
 
 
