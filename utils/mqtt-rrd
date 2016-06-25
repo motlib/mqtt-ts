@@ -18,10 +18,10 @@
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
-DESC="Description of the service"
-NAME=rrdmqtt.py
+DESC="MQTT based graphing"
+NAME=mqtt-rrd.py
 DAEMON=/opt/mqtt-ts/src/$NAME
-DAEMON_ARGS="--cfg /opt/mqtt-ts/cfg/rrdmqtt.yaml --logfile /var/log/rrdmqtt.log"
+DAEMON_ARGS="--cfg /opt/mqtt-ts/cfg/mqtt-rrd.yaml --logfile /var/log/mqtt-rrd.log"
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 
@@ -126,7 +126,6 @@ case "$1" in
 	do_reload
 	log_end_msg $?
 	;;
-  #restart|force-reload)
   restart)
 	#
 	# If the "reload" option is implemented then remove the
@@ -150,8 +149,7 @@ case "$1" in
 	esac
 	;;
   *)
-	#echo "Usage: $SCRIPTNAME {start|stop|restart|reload|force-reload}" >&2
-	echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
+	echo "Usage: $SCRIPTNAME {start|stop|restart|reload}" >&2
 	exit 3
 	;;
 esac
