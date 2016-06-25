@@ -78,13 +78,13 @@ class CmdlApp():
         try:
             with open(self.args.cfg, 'r') as f:
                 self.cfg = yaml.load(f)
-        except:
-            msg = "Failed to load config file '{0}'."
+        except Exception as ex:
+            msg = "Failed to load config file '{0}': {1}"
 
             if self.args.verbose:
-                logging.exception(msg.format(self.args.cfg))
+                logging.exception(msg.format(self.args.cfg, ex))
             else:
-                logging.error(msg.format(self.args.cfg))
+                logging.error(msg.format(self.args.cfg, ex))
 
             sys.exit(1)
 
