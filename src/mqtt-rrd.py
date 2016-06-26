@@ -14,7 +14,15 @@ from sensors.sbase import SensorEvent
 
 class RrdMqtt(CmdlApp):
     def __init__(self):
-        CmdlApp.__init__(self)
+        '''Initialize the instance.
+
+        This configures the command-line application with
+        configuration file and handler for the SIGHUP signal.
+
+        '''
+        
+        super().__init__()
+        
         self.cmdlapp_config(
             has_cfgfile=True,
             reload_on_hup=True)
@@ -34,6 +42,10 @@ class RrdMqtt(CmdlApp):
         
     def update_signal(self, signal):
         sigcfg = self.sig_cfg[signal]
+
+        # TODO: Currenly bad implemented. We update every time we have
+        # a payload. But that does not mean that we just received a
+        # new value.
         
         try:
             status = self.mqtt.get_status(sigcfg['topic'])
@@ -73,7 +85,21 @@ class RrdMqtt(CmdlApp):
                 graph=graphcfg,
                 signalopts=self.sig_cfg)
 
+            
+    def generate_graph_configs(self):
+        self.graphs = []
 
+        # First we patch each graph config with default values, if
+        # they do not yet exist in the graph config.
+        defcfg = selrf.cfg['rrdmqtt']['graphconfig']
+        
+        for grname,grcfg in self.cfg['rrdmqtt']['graphs'].items():
+
+            grcfg.setdefault('width', defcfg['width'])
+            grcfg.setdefault('height', defcfg['height'])
+            grcfg.setdefault('timespans', defcfg['timespans'])
+        
+        
     def initialize(self):
         self.mqtt = MQTTManager(self.cfg['mqtt']['broker'])
 
@@ -88,7 +114,6 @@ class RrdMqtt(CmdlApp):
             # subscribe topics
             self.mqtt.add_topic(signal['topic'])
             self.mqtt.set_timeout(signal['topic'], signal['timeout'])
-
 
 
     def main_fct(self):
